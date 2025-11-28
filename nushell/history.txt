@@ -1,8 +1,0 @@
-config
-config env
-config nu
-$nu.config-path
-nvim
-nano /etc/shells
-chsh -s /opt/homebrew/bin/nu
-exit
