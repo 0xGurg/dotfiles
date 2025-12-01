@@ -1,5 +1,0 @@
-theme = "Kanagawa wave" 
-background-opacity = 0.75
-background-blur = true
-keybind = global:cmd+/=toggle_quick_terminal
-font-family = "JetBrainsMonoNL Nerd Font Mono"
