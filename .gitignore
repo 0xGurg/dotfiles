@@ -1,1 +1,15 @@
 .env
+
+# Zsh history and cache
+zsh/.zsh_history
+zsh/.zcompdump*
+
+# Nix build results
+result
+result-*
+
+# Raycast store extensions (third-party, auto-managed)
+raycast/extensions/
+
+# macOS
+.DS_Store

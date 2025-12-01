@@ -1,0 +1,11 @@
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[user]
+	email = george.luis.pagarigan@gmail.com
+	name = George Luis Pagarigan
+
+
