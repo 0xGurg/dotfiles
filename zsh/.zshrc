@@ -1,32 +1,85 @@
 # ============================================================================
-# SHELL INITIALIZATION
+# SHELL OPTIONS
 # ============================================================================
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+setopt AUTO_CD
 
-# ZSH Plugins
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+# ============================================================================
+# HISTORY
+# ============================================================================
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE="$HOME/.config/zsh/.zsh_history"
 
-# Starship Prompt
-export STARSHIP_CONFIG=~/.config/starship/starship.toml
-eval "$(starship init zsh)"
-
-# NVM (Node Version Manager)
-export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
-
-# Key Bindings
-bindkey jj vi-cmd-mode
-
-# Environment Variables
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
 export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
 export PATH="$HOME/.local/bin:$PATH"
 export OLLAMA_NUM_GPU=99
+export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+
+# nvm (Node Version Manager) setup
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+# ============================================================================
+# ALIASES
+# ============================================================================
+
+# System
+alias bbiu="brew update && brew bundle install --cleanup --file=~/.config/brew/Brewfile && brew upgrade"
+alias cl="clear"
+alias ff="fastfetch"
+alias q="exit"
+alias sz="source ~/.zshrc"
+
+# Directory Navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias -- -="cd -"
+alias rmd="rm -rf"
+alias cdcfg="cd ~/.config"
+
+# Editor
+alias nv="nvim"
+alias nvh="nvim ."
+alias nvhc='osascript -e "tell application \"Cursor\" to quit" 2>/dev/null; sleep 1; cursor . && sleep 2 && osascript -e "tell application \"Cursor\" to activate" && osascript -e "tell application \"System Events\" to keystroke \"e\" using {command down, option down}" && sleep 1 && (aerospace list-windows --all --format "%{app-name} %{window-id}" | grep -i ghostty | head -1 | awk "{print \$2}" | xargs -I {} aerospace focus --window-id {}) && aerospace resize smart +400 && nvh'
+alias nvc="nvim ~/.config"
+
+# Project Scripts
+alias pxd="px dev"
+alias pxs="px storybook"
+alias pxb="px build"
+alias pxt="px test"
+alias pxtw="px test:watch"
+alias pxl="px lint"
+alias pxlf="px lint:fix"
+alias pxf="px format"
+alias pxc="px typecheck"
+
+# Package Management
+alias pclean="rm -rf node_modules pnpm-lock.yaml && pi"
+alias pfresh="rm -rf node_modules pnpm-lock.yaml yarn.lock package-lock.json && pi"
+alias pout="px outdated"
+
+# Git
+alias gpo="git pull origin --no-rebase"
+alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
+alias lg="lazygit"
+
+# ============================================================================
+# KEY BINDINGS
+# ============================================================================
+bindkey jj vi-cmd-mode
 
 # ============================================================================
 # PROJECT CONFIGURATION
 # ============================================================================
-
-# Project directories
 typeset -A projects
 projects[ui]="~/projects/ui-components-videoland"
 projects[lp]="~/projects/landing-frontend"
@@ -133,62 +186,36 @@ function px() {
 }
 
 # ============================================================================
-# ALIASES
+# COMPLETIONS & PLUGINS
 # ============================================================================
 
-# ---------- System ----------
-alias bbiu="brew update &&\
-    brew bundle install --cleanup --file=~/.config/brew/Brewfile &&\
-    brew upgrade"
-alias cl='clear'
-alias ff='fastfetch'
-alias q='exit'
-alias sz="source ~/.zshrc"
+# zsh-autosuggestions (installed via brew)
+if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
-# ---------- Directory Navigation ----------
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias -- -='cd -'
-alias rmd='rm -rf'
-alias cdcfg='cd ~/.config'
+# zsh-syntax-highlighting (installed via brew - must be last)
+if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
 
-# ---------- Editor ----------
-alias nv='nvim'
-alias nvh="nv ."
-alias nvhc='osascript -e "tell application \"Cursor\" to quit" 2>/dev/null; sleep 1; cursor . && sleep 2 && osascript -e "tell application \"Cursor\" to activate" && osascript -e "tell application \"System Events\" to keystroke \"e\" using {command down, option down}" && sleep 1 && (aerospace list-windows --all --format "%{app-name} %{window-id}" | grep -i ghostty | head -1 | awk "{print \$2}" | xargs -I {} aerospace focus --window-id {}) && aerospace resize smart +400 && nvh'
-alias nvc='nv ~/.config'
-
-# ---------- Project Scripts ----------
-alias pxd='px dev'
-alias pxs='px storybook'
-alias pxb='px build'
-alias pxt='px test'
-alias pxtw='px test:watch'
-alias pxl='px lint'
-alias pxlf='px lint:fix'
-alias pxf='px format'
-alias pxc='px typecheck'
-
-# ---------- Package Management ----------
-alias pclean='rm -rf node_modules pnpm-lock.yaml && pi'
-alias pfresh='rm -rf node_modules pnpm-lock.yaml yarn.lock package-lock.json && pi'
-alias pout='px outdated'
-
-# ---------- Git ----------
-alias gpo="git pull origin --no-rebase"
-alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
-alias lg="lazygit"
+# Kubernetes completion
+if command -v kubectl &> /dev/null; then
+  source <(kubectl completion zsh)
+fi
 
 # ============================================================================
-# STARTUP
+# STARSHIP PROMPT
 # ============================================================================
-
-ff
+eval "$(starship init zsh)"
 
 # ============================================================================
 # SDKMAN (Must be at the end)
 # ============================================================================
-
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# ============================================================================
+# STARTUP
+# ============================================================================
+ff

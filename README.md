@@ -1,23 +1,29 @@
 # Dotfiles
 
-Personal configuration files for macOS development environment.
+Personal configuration files for macOS development environment, managed with Homebrew and symlinks.
 
 ## 📁 Structure
 
 ```
 ~/.config/
-├── aerospace/         # Window manager (tiling)
-├── brew/             # Homebrew packages (Brewfile)
-├── btop/             # System monitor
-├── fastfetch/        # System info display
-├── ghostty/          # Terminal emulator + themes
-├── nushell/          # Modern shell
-├── nvim/             # Neovim editor (see nvim/README.md)
-├── opencode/         # OpenCode config
-├── raycast/          # Raycast launcher
-├── sketchybar/       # macOS status bar
-├── starship/         # Shell prompt
-└── zsh/              # Z shell
+├── brew/               # Homebrew Brewfile
+│   └── Brewfile        # All packages and casks
+├── zsh/                # Zsh configuration
+│   └── .zshrc          # Shell config (symlinked to ~/.zshrc)
+├── scripts/            # Setup and utility scripts
+│   └── setup.sh        # Bootstrap script
+├── starship/           # Starship prompt
+│   └── starship.toml   # Prompt config (STARSHIP_CONFIG points here)
+├── git/                # Git configuration
+│   └── config          # Git settings
+├── aerospace/          # Window manager
+├── btop/               # System monitor
+├── fastfetch/          # System info
+├── ghostty/            # Terminal emulator + themes
+├── nvim/               # Neovim editor (see nvim/README.md)
+├── opencode/           # OpenCode config
+├── raycast/            # Raycast launcher
+└── sketchybar/         # macOS status bar
 ```
 
 ## 🚀 Quick Start
@@ -28,60 +34,110 @@ git clone <repository-url> ~/.config
 cd ~/.config
 ```
 
-### 2. Install Packages
+### 2. Run Setup Script
 ```bash
-brew bundle --file=brew/Brewfile
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ```
 
-### 3. Configure Tools
-Most tools automatically detect configs in `~/.config/`. See individual folder READMEs for details.
+This will:
+- Install Homebrew (if not installed)
+- Create symlink: `~/.config/zsh/.zshrc` → `~/.zshrc`
+- Install all packages from Brewfile
+
+### 3. Restart Terminal
+```bash
+source ~/.zshrc
+# or just open a new terminal
+```
 
 ## 🔧 Tools
 
-| Tool | Purpose | Config Location | Docs |
-|------|---------|----------------|------|
-| **Neovim** | Code editor (TypeScript/JS focus) | `nvim/` | [README](nvim/README.md) |
-| **AeroSpace** | Window tiling manager | `aerospace/aerospace.toml` | - |
-| **Ghostty** | Terminal emulator | `ghostty/config` | - |
-| **SketchyBar** | Status bar | `sketchybar/sketchybarrc` | - |
-| **Nushell** | Modern shell | `nushell/config.nu` | - |
-| **Starship** | Shell prompt | `starship/starship.toml` | - |
-| **Homebrew** | Package manager | `brew/Brewfile` | - |
+| Tool | Purpose |
+|------|---------|
+| **Neovim** | Code editor (TypeScript/JS focus) |
+| **Zsh** | Shell with autosuggestions & syntax highlighting |
+| **Starship** | Fast, customizable prompt |
+| **Ghostty** | GPU-accelerated terminal emulator |
+| **AeroSpace** | Window tiling manager |
+| **SketchyBar** | Custom macOS status bar |
+| **Lazygit** | Terminal UI for git |
+| **Ollama** | Local LLM runner |
 
-## 📖 Detailed Documentation
+## 📦 Package Management
 
-Each major tool has its own README with detailed configuration, keymaps, and usage:
+### Update Everything
+```bash
+bbiu
+```
 
-- **[Neovim](nvim/README.md)** - Complete LSP setup, keymaps, plugins, and how to extend
+This alias runs:
+```bash
+brew update && brew bundle install --cleanup --file=~/.config/brew/Brewfile && brew upgrade
+```
+
+### Add New Package
+Edit `brew/Brewfile` and run `bbiu`.
+
+## 🎨 Customization
+
+### Shell Configuration
+Edit `zsh/.zshrc` for:
+- Aliases
+- Functions  
+- Environment variables
+- Key bindings
+
+Then reload:
+```bash
+sz  # alias for: source ~/.zshrc
+```
+
+### Starship Prompt
+Edit `starship/starship.toml` to customize the prompt theme.
+
+### Git Configuration
+Edit `git/config` for user settings.
+
+## ⌨️ Key Aliases
+
+| Alias | Command |
+|-------|---------|
+| `bbiu` | Update all brew packages |
+| `sz` | Reload shell config |
+| `nv` | Open neovim |
+| `nvh` | Open neovim in current dir |
+| `lg` | Open lazygit |
+| `ff` | Show system info (fastfetch) |
+| `cdcfg` | cd to ~/.config |
 
 ## 🔄 Maintenance
 
-### Update Packages
-```bash
-brew update && brew upgrade
-brew bundle dump --force --file=brew/Brewfile
-```
-
 ### Reload Configs
 ```bash
-# Neovim: Restart or :Lazy sync
-# SketchyBar: sketchybar --reload
-# AeroSpace: aerospace --reload-config
+# Shell
+sz
+
+# SketchyBar
+sketchybar --reload
+
+# AeroSpace
+aerospace reload-config
+
+# Neovim
+# Restart or :Lazy sync
 ```
-
-## 💡 Philosophy
-
-- **Minimal**: Only essential tools and plugins
-- **Fast**: Performance-first configurations
-- **Documented**: Each tool explained (see individual READMEs)
-- **Reproducible**: Declarative configs (Brewfile, lazy-lock.json, etc.)
 
 ## 📝 Notes
 
-- **macOS-specific**: Tested on macOS 14.5+ (Sonoma)
-- **~/.config standard**: XDG Base Directory compliant
+- **macOS support**: Tested on Apple Silicon (M1/M2/M4) Macs
+- **XDG Base Directory**: Follows `~/.config` standard
 - **Git-tracked**: All configs versioned for easy restoration
+
+## 📖 Detailed Documentation
+
+- **[Neovim](nvim/README.md)** - Complete LSP setup, keymaps, plugins
 
 ---
 
-**For detailed tool-specific documentation, see the README in each folder (e.g., `nvim/README.md`)** 
+**For tool-specific documentation, see the README in each folder (e.g., `nvim/README.md`)**
