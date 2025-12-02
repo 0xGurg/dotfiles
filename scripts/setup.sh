@@ -2,6 +2,7 @@
 # ============================================================================
 # Dotfiles Setup Script
 # Run this after cloning dotfiles repo to set up symlinks and install packages
+# Supports: macOS (Homebrew) and Arch Linux (pacman)
 # ============================================================================
 
 set -e
@@ -19,9 +20,39 @@ print_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
 print_error() { echo -e "${RED}✗${NC} $1"; }
 
 # ============================================================================
-# HOMEBREW
+# OS DETECTION
+# ============================================================================
+detect_os() {
+  case "$(uname -s)" in
+    Darwin*)
+      OS="macos"
+      print_status "Detected OS: macOS"
+      ;;
+    Linux*)
+      if [[ -f /etc/arch-release ]]; then
+        OS="arch"
+        print_status "Detected OS: Arch Linux"
+      else
+        OS="linux"
+        print_status "Detected OS: Linux (generic)"
+      fi
+      ;;
+    *)
+      OS="unknown"
+      print_warning "Unknown OS: $(uname -s)"
+      ;;
+  esac
+}
+
+# ============================================================================
+# HOMEBREW (macOS only)
 # ============================================================================
 setup_homebrew() {
+  if [[ "$OS" != "macos" ]]; then
+    print_status "Skipping Homebrew setup (not on macOS)"
+    return 0
+  fi
+  
   print_status "Setting up Homebrew..."
   
   if ! command -v brew &> /dev/null; then
@@ -75,13 +106,51 @@ setup_symlinks() {
 # PACKAGES
 # ============================================================================
 install_packages() {
-  print_status "Installing packages via Homebrew..."
+  if [[ "$OS" == "macos" ]]; then
+    print_status "Installing packages via Homebrew..."
+    brew update
+    brew bundle install --cleanup --file="$DOTFILES_DIR/Brewfile"
+    brew upgrade
+    print_success "All packages installed"
+  elif [[ "$OS" == "arch" ]]; then
+    print_status "Skipping package installation on Arch Linux"
+    print_warning "Note: Install packages manually using pacman/yay on Arch"
+    print_warning "Brewfile is macOS-specific"
+  else
+    print_warning "Unknown package manager for this OS"
+    print_warning "Please install packages manually"
+  fi
+}
+
+# ============================================================================
+# TOUCH ID (macOS only)
+# ============================================================================
+setup_touchid() {
+  if [[ "$OS" != "macos" ]]; then
+    print_status "Skipping Touch ID setup (macOS only feature)"
+    return 0
+  fi
   
-  brew update
-  brew bundle install --cleanup --file="$DOTFILES_DIR/Brewfile"
-  brew upgrade
+  print_status "Setting up Touch ID for sudo..."
   
-  print_success "All packages installed"
+  # Check if already enabled
+  if [[ -f /etc/pam.d/sudo_local ]] && grep -q "pam_tid.so" /etc/pam.d/sudo_local; then
+    print_success "Touch ID already enabled for sudo"
+    return 0
+  fi
+  
+  echo ""
+  print_warning "Touch ID allows using fingerprint instead of password for sudo commands"
+  read -p "Enable Touch ID for sudo? (y/N): " -n 1 -r
+  echo ""
+  
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    sudo sh -c 'echo "# Touch ID support for sudo
+auth       sufficient     pam_tid.so" > /etc/pam.d/sudo_local'
+    print_success "Touch ID enabled for sudo"
+  else
+    print_status "Skipping Touch ID setup (you can run scripts/enable-touchid-sudo.sh later)"
+  fi
 }
 
 # ============================================================================
@@ -94,17 +163,25 @@ main() {
   echo "╚═══════════════════════════════════════════════════════════════╝"
   echo ""
   
+  detect_os
   setup_homebrew
   setup_stow
   setup_symlinks
   install_packages
+  setup_touchid
   
   echo ""
   print_success "Setup complete! 🎉"
   echo ""
   echo "Next steps:"
   echo "  1. Restart your terminal or run: source ~/.zshrc"
-  echo "  2. Run 'bbiu' anytime to update packages"
+  if [[ "$OS" == "macos" ]]; then
+    echo "  2. Run 'bbiu' anytime to update packages"
+    echo "  3. Try 'sudo ls' to test Touch ID authentication"
+  elif [[ "$OS" == "arch" ]]; then
+    echo "  2. Install Arch packages manually with pacman/yay"
+    echo "  3. Adjust configs as needed for your Arch setup"
+  fi
   echo ""
   echo "To uninstall symlinks, run: cd ~/dotfiles && stow -D ."
   echo ""
