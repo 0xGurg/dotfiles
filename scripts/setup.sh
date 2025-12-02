@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================================================
 # Dotfiles Setup Script
-# Run this after cloning .config to set up symlinks and install packages
+# Run this after cloning dotfiles repo to set up symlinks and install packages
 # ============================================================================
 
 set -e
 
-DOTFILES_DIR="$HOME/.config"
+DOTFILES_DIR="$HOME/dotfiles"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -36,30 +36,39 @@ setup_homebrew() {
 }
 
 # ============================================================================
-# SYMLINKS
+# STOW
 # ============================================================================
-create_symlink() {
-  local source=$1
-  local target=$2
+setup_stow() {
+  print_status "Setting up GNU Stow..."
   
-  if [[ -L "$target" ]]; then
-    rm "$target"
-  elif [[ -f "$target" ]]; then
-    print_warning "Backing up existing $target to ${target}.bak"
-    mv "$target" "${target}.bak"
+  if ! command -v stow &> /dev/null; then
+    print_status "Installing GNU Stow via Homebrew..."
+    brew install stow
   fi
   
-  ln -s "$source" "$target"
-  print_success "Linked $target -> $source"
+  print_success "GNU Stow installed"
 }
 
 setup_symlinks() {
-  print_status "Creating symlinks..."
+  print_status "Creating symlinks with stow..."
   
-  # ZSH
-  create_symlink "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
+  # Remove existing manual symlinks if they exist
+  if [[ -L "$HOME/.zshrc" ]]; then
+    print_status "Removing old manual symlink: ~/.zshrc"
+    rm "$HOME/.zshrc"
+  fi
   
-  print_success "Symlinks created"
+  # Backup existing files that aren't symlinks
+  if [[ -f "$HOME/.zshrc" ]] && [[ ! -L "$HOME/.zshrc" ]]; then
+    print_warning "Backing up existing ~/.zshrc to ~/.zshrc.bak"
+    mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
+  fi
+  
+  # Use stow to create all symlinks
+  cd "$DOTFILES_DIR"
+  stow -v .
+  
+  print_success "Symlinks created with stow"
 }
 
 # ============================================================================
@@ -86,6 +95,7 @@ main() {
   echo ""
   
   setup_homebrew
+  setup_stow
   setup_symlinks
   install_packages
   
@@ -95,6 +105,8 @@ main() {
   echo "Next steps:"
   echo "  1. Restart your terminal or run: source ~/.zshrc"
   echo "  2. Run 'bbiu' anytime to update packages"
+  echo ""
+  echo "To uninstall symlinks, run: cd ~/dotfiles && stow -D ."
   echo ""
 }
 
