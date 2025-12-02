@@ -31,7 +31,7 @@ export NVM_DIR="$HOME/.nvm"
 # ============================================================================
 
 # System
-alias bbiu="brew update && brew bundle install --cleanup --file=~/.config/brew/Brewfile && brew upgrade"
+alias bbiu="brew update && brew bundle install --cleanup --file=~/dotfiles/Brewfile && brew upgrade"
 alias cl="clear"
 alias ff="fastfetch"
 alias q="exit"
@@ -43,7 +43,7 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias -- -="cd -"
 alias rmd="rm -rf"
-alias cdcfg="cd ~/.config"
+alias cdcfg="z ~/.config"
 
 # Editor
 alias nv="nvim"
@@ -112,7 +112,7 @@ function cdp {
   fi
   
   local expanded_path="${projects[$key]/#\~/$HOME}"
-  cd "$expanded_path"
+  z "$expanded_path"
   echo "📁 $(basename $expanded_path)"
   check_nvmrc
 }
@@ -208,6 +208,11 @@ fi
 # STARSHIP PROMPT
 # ============================================================================
 eval "$(starship init zsh)"
+
+# ============================================================================
+# ZOXIDE
+# ============================================================================
+eval "$(zoxide init zsh)"
 
 # ============================================================================
 # SDKMAN (Must be at the end)

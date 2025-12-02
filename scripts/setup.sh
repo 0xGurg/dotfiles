@@ -78,7 +78,7 @@ install_packages() {
   print_status "Installing packages via Homebrew..."
   
   brew update
-  brew bundle install --cleanup --file="$DOTFILES_DIR/brew/Brewfile"
+  brew bundle install --cleanup --file="$DOTFILES_DIR/Brewfile"
   brew upgrade
   
   print_success "All packages installed"
