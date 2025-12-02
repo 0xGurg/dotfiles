@@ -30,7 +30,7 @@ brew "ollama"
 brew "opencode"
 brew "pnpm"
 brew "sketchybar"
-brew "osx-cpu-temp"
+brew "macmon"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
