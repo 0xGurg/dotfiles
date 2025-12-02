@@ -32,6 +32,7 @@ brew "pnpm"
 brew "sketchybar"
 brew "macmon"
 brew "atuin"
+brew "bat"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
