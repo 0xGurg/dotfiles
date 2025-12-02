@@ -1,18 +1,18 @@
 .env
 
-# Zsh history and cache
-zsh/.zsh_history
-zsh/.zcompdump*
+# Zsh history and cache (at $HOME level)
+.zsh_history
+.zcompdump*
 
 # Nix build results
 result
 result-*
 
 # Raycast store extensions (third-party, auto-managed)
-raycast/extensions/
+.config/raycast/extensions/
 
 # SketchyBar generated app font
-sketchybar/sketchybar-app-font/
+.config/sketchybar/sketchybar-app-font/
 
 # macOS
 .DS_Store
