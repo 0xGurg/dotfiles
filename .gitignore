@@ -11,5 +11,8 @@ result-*
 # Raycast store extensions (third-party, auto-managed)
 raycast/extensions/
 
+# SketchyBar generated app font
+sketchybar/sketchybar-app-font/
+
 # macOS
 .DS_Store
