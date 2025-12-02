@@ -63,6 +63,15 @@ alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bol
 alias lg="lazygit"
 
 # ============================================================================
+# BAT (Modern cat replacement)
+# ============================================================================
+if command -v bat &> /dev/null; then
+  alias cat="bat"
+  alias rcat="/bin/cat"
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# ============================================================================
 # KEY BINDINGS
 # ============================================================================
 bindkey jj vi-cmd-mode
