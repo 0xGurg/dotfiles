@@ -31,6 +31,7 @@ brew "opencode"
 brew "pnpm"
 brew "sketchybar"
 brew "macmon"
+brew "atuin"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
