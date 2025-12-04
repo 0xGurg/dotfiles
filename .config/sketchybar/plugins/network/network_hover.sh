@@ -17,7 +17,7 @@ update_network_main() {
 
   # If Ethernet is connected, show Ethernet icon
   if [ "$ETHERNET_CONNECTED" = true ]; then
-    sketchybar --set system_monitor.network \
+    sketchybar --set network \
       icon=􀶿 \
       icon.color=$ICON_COLOR \
       drawing=on
@@ -51,13 +51,13 @@ update_network_main() {
 
   if [ -n "$SSID" ] && [ "$SSID" != "You are not associated with an AirPort network." ] && [ "$SSID" != "<redacted>" ]; then
     # WiFi is connected - show normal WiFi icon in ICON_COLOR
-    sketchybar --set system_monitor.network \
+    sketchybar --set network \
       icon=􀙇 \
       icon.color=$ICON_COLOR \
       drawing=on
   else
     # No connection - show slash icon in red
-    sketchybar --set system_monitor.network \
+    sketchybar --set network \
       icon=􀙈 \
       icon.color=$RED \
       drawing=on
@@ -66,11 +66,10 @@ update_network_main() {
 
 case "$SENDER" in
   "mouse.entered")
-    sketchybar --set system_monitor.network popup.drawing=on \
-               --set resources popup.drawing=off
+    sketchybar --set network popup.drawing=on
     ;;
   "mouse.exited")
-    sketchybar --set system_monitor.network popup.drawing=off
+    sketchybar --set network popup.drawing=off
     ;;
   "routine")
     update_network_main

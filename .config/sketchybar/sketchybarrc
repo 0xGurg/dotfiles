@@ -55,11 +55,12 @@ done
 sketchybar --set front_app click_script="sketchybar --set system_monitor.network popup.drawing=off"
 
 # -- Right Side Items --
-# Layout: Keyboard → Sensors → System Monitor [Network | Battery] → Calendar
 source $ITEM_DIR/calendar.sh
-source $ITEM_DIR/system_monitor.sh
+source $ITEM_DIR/battery.sh
+source $ITEM_DIR/network.sh
 source $ITEM_DIR/keyboard.sh
-source $ITEM_DIR/sensors.sh
+source $ITEM_DIR/microphone.sh
+source $ITEM_DIR/volume.sh
 
 # Close popups when clicking on other items
 sketchybar --set system_monitor.battery click_script="sketchybar --set system_monitor.network popup.drawing=off" \
