@@ -23,21 +23,21 @@ print_error() { echo -e "${RED}✗${NC} $1"; }
 # ============================================================================
 enable_touchid() {
   print_status "Enabling Touch ID for sudo commands..."
-  
+
   # Check if Touch ID is already enabled
-  if [[ -f /etc/pam.d/sudo_local ]]; then
-    if grep -q "pam_tid.so" /etc/pam.d/sudo_local; then
+  if [[ -f /etc/pam.d/sudo ]]; then
+    if grep -q "pam_tid.so" /etc/pam.d/sudo; then
       print_success "Touch ID is already enabled for sudo"
       return 0
     fi
   fi
-  
-  # Create sudo_local file with Touch ID support
+
+  # Create sudo file with Touch ID support
   # This file persists across macOS updates (sudo file doesn't)
-  print_status "Creating /etc/pam.d/sudo_local..."
+  print_status "Creating /etc/pam.d/sudo..."
   sudo sh -c 'echo "# Touch ID support for sudo
-auth       sufficient     pam_tid.so" > /etc/pam.d/sudo_local'
-  
+auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
+
   print_success "Touch ID enabled for sudo commands!"
   echo ""
   echo "You can now use your fingerprint for sudo authentication in:"
@@ -58,22 +58,22 @@ main() {
   echo "║           🔐 Touch ID for sudo Setup                          ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
   echo ""
-  
+
   # Check if running on macOS
   if [[ "$(uname)" != "Darwin" ]]; then
     print_error "This script is only for macOS (Touch ID is not available on Linux)"
     print_status "If you're on Arch Linux, this feature will be skipped automatically"
     exit 1
   fi
-  
+
   # Check if Touch ID is available
   if ! bioutil -r -s &>/dev/null; then
     print_warning "Touch ID may not be available on this Mac"
     print_warning "Continuing anyway..."
   fi
-  
+
   enable_touchid
-  
+
   echo ""
   print_success "Setup complete! 🎉"
   echo ""
@@ -85,4 +85,3 @@ main() {
 }
 
 main "$@"
-
