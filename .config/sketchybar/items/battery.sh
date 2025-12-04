@@ -4,10 +4,8 @@ source "$CONFIG_DIR/colors.sh"
 source "$ITEM_DIR/popup_defaults.sh"
 
 battery=(
-	icon.font="SF Pro:Semibold:16.0"
 	label.drawing=off
 	update_freq=120
-	popup.align=center
 	"${POPUP_BACKGROUND[@]}"
 	script="$PLUGIN_DIR/battery/battery.sh"
 )

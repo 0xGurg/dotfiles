@@ -5,11 +5,9 @@ source "$ITEM_DIR/popup_defaults.sh"
 
 network=(
 	icon=􀙇
-	icon.font="SF Pro:Semibold:16.0"
 	label.drawing=off
-	popup.align=center
 	"${POPUP_BACKGROUND[@]}"
-	update_freq=3
+	update_freq=2
 	script="$PLUGIN_DIR/network/network_hover.sh"
 )
 
