@@ -52,17 +52,17 @@ setup_homebrew() {
     print_status "Skipping Homebrew setup (not on macOS)"
     return 0
   fi
-  
+
   print_status "Setting up Homebrew..."
-  
+
   if ! command -v brew &> /dev/null; then
     print_status "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
+
     # Add to path for this session
     eval "$(/opt/homebrew/bin/brew shellenv)"
   fi
-  
+
   print_success "Homebrew installed"
 }
 
@@ -71,34 +71,34 @@ setup_homebrew() {
 # ============================================================================
 setup_stow() {
   print_status "Setting up GNU Stow..."
-  
+
   if ! command -v stow &> /dev/null; then
     print_status "Installing GNU Stow via Homebrew..."
     brew install stow
   fi
-  
+
   print_success "GNU Stow installed"
 }
 
 setup_symlinks() {
   print_status "Creating symlinks with stow..."
-  
+
   # Remove existing manual symlinks if they exist
   if [[ -L "$HOME/.zshrc" ]]; then
     print_status "Removing old manual symlink: ~/.zshrc"
     rm "$HOME/.zshrc"
   fi
-  
+
   # Backup existing files that aren't symlinks
   if [[ -f "$HOME/.zshrc" ]] && [[ ! -L "$HOME/.zshrc" ]]; then
     print_warning "Backing up existing ~/.zshrc to ~/.zshrc.bak"
     mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
   fi
-  
+
   # Use stow to create all symlinks
   cd "$DOTFILES_DIR"
   stow -v .
-  
+
   print_success "Symlinks created with stow"
 }
 
@@ -130,23 +130,23 @@ setup_touchid() {
     print_status "Skipping Touch ID setup (macOS only feature)"
     return 0
   fi
-  
+
   print_status "Setting up Touch ID for sudo..."
-  
+
   # Check if already enabled
-  if [[ -f /etc/pam.d/sudo_local ]] && grep -q "pam_tid.so" /etc/pam.d/sudo_local; then
+  if [[ -f /etc/pam.d/sudo ]] && grep -q "pam_tid.so" /etc/pam.d/sudo; then
     print_success "Touch ID already enabled for sudo"
     return 0
   fi
-  
+
   echo ""
   print_warning "Touch ID allows using fingerprint instead of password for sudo commands"
   read -p "Enable Touch ID for sudo? (y/N): " -n 1 -r
   echo ""
-  
+
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo sh -c 'echo "# Touch ID support for sudo
-auth       sufficient     pam_tid.so" > /etc/pam.d/sudo_local'
+auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
     print_success "Touch ID enabled for sudo"
   else
     print_status "Skipping Touch ID setup (you can run scripts/enable-touchid-sudo.sh later)"
@@ -162,14 +162,14 @@ main() {
   echo "║               🛠️  Dotfiles Setup Script                       ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
   echo ""
-  
+
   detect_os
   setup_homebrew
   setup_stow
   setup_symlinks
   install_packages
   setup_touchid
-  
+
   echo ""
   print_success "Setup complete! 🎉"
   echo ""
@@ -188,4 +188,3 @@ main() {
 }
 
 main "$@"
-
