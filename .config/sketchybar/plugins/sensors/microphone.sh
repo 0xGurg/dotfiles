@@ -2,38 +2,48 @@
 
 source "$CONFIG_DIR/colors.sh"
 
-# Function to check if microphone is in use
-check_microphone() {
-  # Check if any app is using the microphone
+is_muted() {
   MIC_VOLUME=$(osascript -e "input volume of (get volume settings)" 2>/dev/null)
-  
-  if [ -z "$MIC_VOLUME" ] || [ "$MIC_VOLUME" = "0" ]; then
-    # Microphone is muted
-    ICON="􀊳"  # Muted microphone icon
-    COLOR="$RED"
-  else
-    # Check if microphone is actively being used
-    # This checks if coreaudiod is actively processing input
-    if pmset -g | grep -q "coreaudiod" || \
-       lsof 2>/dev/null | grep -q "AppleHDAEngineInput" || \
-       [ "$MIC_VOLUME" -gt 50 ]; then
-      # Microphone is active/in use
-      ICON="􂙎"  # Active microphone icon
-      COLOR="$GREEN"
-    else
-      # Microphone is on but not actively in use
-      ICON="􀊱"  # Idle microphone icon
-      COLOR="$ICON_COLOR"
-    fi
-  fi
-  
-  sketchybar --set "$NAME" icon="$ICON" icon.color="$COLOR"
+  [ -z "$MIC_VOLUME" ] || [ "$MIC_VOLUME" = "0" ]
 }
 
-# Initial check
-check_microphone
+update_icon() {
+  if is_muted; then
+    sketchybar --set microphone icon="􀊳" icon.color="$RED"
+  else
+    sketchybar --set microphone icon="􀊱" icon.color="$ICON_COLOR"
+  fi
+}
 
-# Set up periodic checking (every 2 seconds)
-if [ "$SENDER" != "forced" ]; then
-  sketchybar --set "$NAME" update_freq=2
+update_popup() {
+  if command -v SwitchAudioSource &> /dev/null; then
+    INPUT_DEVICE=$(SwitchAudioSource -t input -c 2>/dev/null)
+  fi
+  [ -z "$INPUT_DEVICE" ] && INPUT_DEVICE="Audio Input"
+
+  sketchybar --set microphone.device label="$INPUT_DEVICE"
+}
+
+# Handle toggle command (called from click_script)
+if [ "$1" = "toggle" ]; then
+  if is_muted; then
+    osascript -e "set volume input volume 100"
+  else
+    osascript -e "set volume input volume 0"
+  fi
+  update_icon
+  exit 0
 fi
+
+case "$SENDER" in
+  "mouse.entered")
+    update_popup
+    sketchybar --set microphone popup.drawing=on
+    ;;
+  "mouse.exited")
+    sketchybar --set microphone popup.drawing=off
+    ;;
+  *)
+    update_icon
+    ;;
+esac
