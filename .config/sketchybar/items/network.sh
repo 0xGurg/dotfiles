@@ -7,49 +7,50 @@ network=(
 	icon=􀙇
 	icon.font="SF Pro:Semibold:16.0"
 	label.drawing=off
+	popup.align=center
 	"${POPUP_BACKGROUND[@]}"
 	update_freq=3
 	script="$PLUGIN_DIR/network/network_hover.sh"
 )
 
-# Set defaults for popup items
 set_popup_defaults
 
-sketchybar --add item system_monitor.network right \
-	--set system_monitor.network "${network[@]}" \
-	--subscribe system_monitor.network mouse.entered mouse.exited \
+sketchybar --add item network right \
+	--set network "${network[@]}" \
+	--subscribe network mouse.entered mouse.exited \
 	\
-	--add item system_monitor.network.ip popup.system_monitor.network \
-	--set system_monitor.network.ip \
+	--add item network.ip popup.network \
+	--set network.ip \
 		icon=􀵴 \
 		label="Loading..." \
 		update_freq=5 \
 		script="$PLUGIN_DIR/network/ip.sh" \
 	\
-	--add item system_monitor.network.router popup.system_monitor.network \
-	--set system_monitor.network.router \
+	--add item network.router popup.network \
+	--set network.router \
 		icon=􀌘 \
 		label="Loading..." \
 		update_freq=10 \
 		script="$PLUGIN_DIR/network/router.sh" \
 	\
-	--add item system_monitor.network.vpn popup.system_monitor.network \
-	--set system_monitor.network.vpn \
+	--add item network.vpn popup.network \
+	--set network.vpn \
 		icon=􀞚 \
 		label="Loading..." \
 		update_freq=5 \
 		script="$PLUGIN_DIR/network/vpn.sh" \
 	\
-	--add item system_monitor.network.down popup.system_monitor.network \
-	--set system_monitor.network.down \
+	--add item network.down popup.network \
+	--set network.down \
 		icon=􀄩 \
 		label="Loading..." \
 		update_freq=2 \
 		script="$PLUGIN_DIR/network/down.sh" \
 	\
-	--add item system_monitor.network.up popup.system_monitor.network \
-	--set system_monitor.network.up \
+	--add item network.up popup.network \
+	--set network.up \
 		icon=􀄨 \
 		label="Loading..." \
 		update_freq=2 \
 		script="$PLUGIN_DIR/network/up.sh"
+

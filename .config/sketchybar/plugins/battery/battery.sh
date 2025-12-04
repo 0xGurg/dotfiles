@@ -5,13 +5,12 @@ source "$CONFIG_DIR/colors.sh"
 # Handle hover events
 case "$SENDER" in
   "mouse.entered")
-    sketchybar --set system_monitor.battery popup.drawing=on \
-               --set system_monitor.network popup.drawing=off \
-               --set resources popup.drawing=off
+    sketchybar --set battery popup.drawing=on \
+               --set network popup.drawing=off
     exit 0
     ;;
   "mouse.exited")
-    sketchybar --set system_monitor.battery popup.drawing=off
+    sketchybar --set battery popup.drawing=off
     exit 0
     ;;
 esac
