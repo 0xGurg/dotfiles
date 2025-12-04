@@ -5,8 +5,6 @@ source "$ITEM_DIR/popup_defaults.sh"
 
 microphone=(
 	label.drawing=off
-	padding_left=0
-	popup.align=center
 	"${POPUP_BACKGROUND[@]}"
 	script="$PLUGIN_DIR/sensors/microphone.sh"
 	click_script="$PLUGIN_DIR/sensors/microphone.sh toggle; sketchybar --set network popup.drawing=off --set volume popup.drawing=off"

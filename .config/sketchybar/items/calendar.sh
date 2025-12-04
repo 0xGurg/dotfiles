@@ -2,9 +2,7 @@
 
 calendar=(
 	icon=􀧞
-	padding_left=10
-	padding_right=0
-	update_freq=1		
+	update_freq=2		
 	script="$PLUGIN_DIR/calendar.sh"
 )
 

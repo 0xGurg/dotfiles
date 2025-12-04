@@ -5,8 +5,6 @@ source "$ITEM_DIR/popup_defaults.sh"
 
 volume=(
 	label.drawing=off
-	padding_right=8
-	popup.align=center
 	"${POPUP_BACKGROUND[@]}"
 	script="$PLUGIN_DIR/sensors/volume.sh"
 	click_script="osascript -e 'set volume output muted (not (output muted of (get volume settings)))'; sketchybar --set network popup.drawing=off --set microphone popup.drawing=off"

@@ -20,7 +20,7 @@ ITEM_DIR="$CONFIG_DIR/items"
 sketchybar --bar height=37		\
 				 blur_radius=30	\
 				 color=$BG1		\
-				 display=main	
+				 display=main
 
 ##### Changing Defaulst #####
 # We now change some default values, which are applied to all further items.
@@ -37,10 +37,10 @@ default=(
   background.color=$BG2
   background.corner_radius=5
   background.height=24
-  icon.padding_left=4
-  icon.padding_right=10
+  icon.padding_left=5
+  icon.padding_right=5
   label.padding_left=4
-  label.padding_right=10
+  label.padding_right=8
 )
 sketchybar --default "${default[@]}"
 
@@ -48,25 +48,14 @@ sketchybar --default "${default[@]}"
 source $ITEM_DIR/spaces.sh
 source $ITEM_DIR/front_app.sh
 
-# Close popups when clicking on spaces or front_app
-for i in {1..5}; do
-  sketchybar --set space.$i click_script="aerospace workspace $i; sketchybar --set system_monitor.network popup.drawing=off"
-done
 sketchybar --set front_app click_script="sketchybar --set system_monitor.network popup.drawing=off"
 
 # -- Right Side Items --
 source $ITEM_DIR/calendar.sh
 source $ITEM_DIR/battery.sh
 source $ITEM_DIR/network.sh
-source $ITEM_DIR/keyboard.sh
 source $ITEM_DIR/microphone.sh
 source $ITEM_DIR/volume.sh
-
-# Close popups when clicking on other items
-sketchybar --set system_monitor.battery click_script="sketchybar --set system_monitor.network popup.drawing=off" \
-           --set calendar click_script="sketchybar --set system_monitor.network popup.drawing=off" \
-           --set sensors.volume click_script="sketchybar --set system_monitor.network popup.drawing=off" \
-           --set sensors.microphone click_script="sketchybar --set system_monitor.network popup.drawing=off" \
-           --set keyboard click_script="sketchybar --set system_monitor.network popup.drawing=off"
+source $ITEM_DIR/keyboard.sh
 
 sketchybar --update

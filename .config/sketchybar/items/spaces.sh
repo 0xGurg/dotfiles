@@ -12,13 +12,7 @@ add_space_item() {
     --subscribe space.$sid aerospace_workspace_change \
     --set space.$sid \
       icon="$display_icon" \
-      icon.padding_left=8 \
-      icon.padding_right=4 \
-      icon.y_offset=0 \
       label.font="sketchybar-app-font:Regular:16.0" \
-      label.padding_left=4 \
-      label.padding_right=8 \
-      label.y_offset=0 \
       update_freq=2 \
       script="$PLUGIN_DIR/aerospace.sh $sid" \
       click_script="aerospace workspace $sid"
@@ -28,7 +22,3 @@ add_space_item() {
 for sid in $(seq 1 5); do
   add_space_item $sid $sid
 done
-
-# Space 1 should have no left padding (it's the first item)
-sketchybar --set space.1 padding_left=0
-
