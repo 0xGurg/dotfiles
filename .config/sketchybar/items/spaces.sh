@@ -9,7 +9,7 @@ add_space_item() {
   local display_icon=$2
   
   sketchybar --add item space.$sid left \
-    --subscribe space.$sid aerospace_workspace_change \
+    --subscribe space.$sid aerospace_workspace_change mouse.entered mouse.exited \
     --set space.$sid \
       update_freq=2 \
       icon="$display_icon" \
