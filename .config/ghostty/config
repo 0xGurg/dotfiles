@@ -1,6 +1,8 @@
-theme = "Kanagawa wave" 
-background-opacity = 0.75
+theme = "Kanagawa wave"
+background-opacity = 0.90
 background-blur = true
 keybind = global:cmd+/=toggle_quick_terminal
 font-family = "JetBrainsMonoNL Nerd Font Mono"
 keybind = shift+enter=text:\x1b\r
+quick-terminal-position=bottom
+quick-terminal-size=432px
