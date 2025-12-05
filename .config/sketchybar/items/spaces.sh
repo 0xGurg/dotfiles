@@ -13,7 +13,6 @@ add_space_item() {
     --set space.$sid \
       icon="$display_icon" \
       label.font="sketchybar-app-font:Regular:16.0" \
-      update_freq=2 \
       script="$PLUGIN_DIR/aerospace.sh $sid" \
       click_script="aerospace workspace $sid"
 }
