@@ -9,11 +9,11 @@ add_space_item() {
   local display_icon=$2
   
   sketchybar --add item space.$sid left \
-    --subscribe space.$sid aerospace_workspace_change \
+    --subscribe space.$sid aerospace_workspace_change mouse.entered mouse.exited \
     --set space.$sid \
+      update_freq=2 \
       icon="$display_icon" \
       label.font="sketchybar-app-font:Regular:16.0" \
-      update_freq=2 \
       script="$PLUGIN_DIR/aerospace.sh $sid" \
       click_script="aerospace workspace $sid"
 }
