@@ -17,9 +17,8 @@ ITEM_DIR="$CONFIG_DIR/items"
 # If you are looking for other colors, see the color picker:
 # https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
 
-sketchybar --bar height=37		\
-				 blur_radius=30	\
-				 color=$BG1		\
+sketchybar --bar height=43		\
+				 color=$BAR_COLOR		\
 				 display=main
 
 ##### Changing Defaulst #####
@@ -35,8 +34,14 @@ default=(
   icon.color=$ICON_COLOR
   label.color=$TEXT_COLOR
   background.color=$BG2
-  background.corner_radius=5
-  background.height=24
+  background.corner_radius=3
+  background.height=33
+  background.border_width=3
+  background.border_color=$BORDER_COLOR
+  background.shadow.drawing=on
+  background.shadow.color=$SHADOW_COLOR
+  background.shadow.distance=4
+  background.shadow.angle=30
   icon.padding_left=5
   icon.padding_right=5
   label.padding_left=4
@@ -52,10 +57,15 @@ sketchybar --set front_app click_script="sketchybar --set system_monitor.network
 
 # -- Right Side Items --
 source $ITEM_DIR/calendar.sh
+source $ITEM_DIR/keyboard.sh
+
+# Status items (grouped in bracket)
 source $ITEM_DIR/battery.sh
 source $ITEM_DIR/network.sh
 source $ITEM_DIR/microphone.sh
 source $ITEM_DIR/volume.sh
-source $ITEM_DIR/keyboard.sh
+
+# Add bracket around status items
+source $ITEM_DIR/status_bracket.sh
 
 sketchybar --update

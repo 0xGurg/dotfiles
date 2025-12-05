@@ -5,12 +5,11 @@ source "$ITEM_DIR/popup_defaults.sh"
 
 volume=(
 	label.drawing=off
+	background.drawing=off
 	"${POPUP_BACKGROUND[@]}"
 	script="$PLUGIN_DIR/sensors/volume.sh"
 	click_script="osascript -e 'set volume output muted (not (output muted of (get volume settings)))'; sketchybar --set network popup.drawing=off --set microphone popup.drawing=off"
 )
-
-set_popup_defaults
 
 sketchybar --add item volume right \
 	--set volume "${volume[@]}" \
@@ -18,11 +17,13 @@ sketchybar --add item volume right \
 	\
 	--add item volume.level popup.volume \
 	--set volume.level \
+		"${POPUP_ITEM_DEFAULTS[@]}" \
 		icon=􀊧 \
 		label="Loading..." \
 	\
 	--add item volume.device popup.volume \
 	--set volume.device \
+		"${POPUP_ITEM_DEFAULTS[@]}" \
 		icon=􀽆 \
 		label="Loading..."
 

@@ -8,7 +8,6 @@ setopt AUTO_CD
 # ============================================================================
 export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
 export PATH="$HOME/.local/bin:$PATH"
-export OLLAMA_NUM_GPU=99
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 
 # nvm (Node Version Manager) setup
@@ -38,8 +37,7 @@ alias cdcfg="z ~/.config"
 # Editor
 alias nv="nvim"
 alias nvh="nvim ."
-alias nvhc='osascript -e "tell application \"Cursor\" to quit" 2>/dev/null; sleep 1; cursor . && sleep 2 && osascript -e "tell application \"Cursor\" to activate" && osascript -e "tell application \"System Events\" to keystroke \"e\" using {command down, option down}" && sleep 1 && (aerospace list-windows --all --format "%{app-name} %{window-id}" | grep -i ghostty | head -1 | awk "{print \$2}" | xargs -I {} aerospace focus --window-id {}) && aerospace resize smart +400 && nvh'
-alias nvc="nvim ~/.config"
+alias nvhc='osascript -e "tell application \"Cursor\" to quit" 2>/dev/null; sleep 1; cursor . && sleep 2 && osascript -e "tell application \"Cursor\" to activate" && osascript -e "tell application \"System Events\" to keystroke \"e\" using {command down, option down}" && sleep 1 && (aerospace list-windows --all --format "%{app-name} %{window-id}" | grep -i ghostty | head -1 | awk "{print \$2}" | xargs -I {} aerospace focus --window-id {}) && aerospace resize smart +300 && nvh'
 
 # Project Scripts
 alias pxd="px dev"
@@ -109,7 +107,7 @@ function cdp {
     echo "❌ Project '$key' not found"
     return 1
   fi
-  
+
   local expanded_path="${projects[$key]/#\~/$HOME}"
   z "$expanded_path"
   echo "📁 $(basename $expanded_path)"
@@ -128,7 +126,7 @@ function killport() {
 # Install dependencies
 function pi() {
   check_nvmrc
-  
+
   if [[ -f "yarn.lock" ]]; then
     echo "📦 Using pnpm (syncing with yarn.lock)..."
     pnpm import 2>/dev/null || true
@@ -151,7 +149,7 @@ function pi() {
 # Add package
 function pa() {
   check_nvmrc
-  
+
   if [[ -f "yarn.lock" ]]; then
     echo "📦 Adding with yarn (for lockfile) + pnpm install..."
     yarn add "$@" && pnpm import 2>/dev/null && pnpm install --shamefully-hoist
@@ -166,7 +164,7 @@ function pa() {
 # Remove package
 function pr() {
   check_nvmrc
-  
+
   if [[ -f "yarn.lock" ]]; then
     echo "📦 Removing with yarn (for lockfile) + pnpm install..."
     yarn remove "$@" && pnpm import 2>/dev/null && pnpm install --shamefully-hoist
