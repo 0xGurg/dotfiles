@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Source the icon map
+source "$CONFIG_DIR/colors.sh"
 source "$CONFIG_DIR/helpers/icon_map.sh"
 
 # Get the current focused application name
@@ -11,10 +11,24 @@ if [ -n "$FRONT_APP" ]; then
   __icon_map "$FRONT_APP"
   APP_ICON="$icon_result"
   
-  # Set icon and label separately
+  # Check for SecureInput
+  secure_input_enabled=$(ioreg -l -w 0 | grep SecureInput)
+  
+  if [ -n "$secure_input_enabled" ]; then
+    # SecureInput is enabled - add red warning icon
+    LABEL="$FRONT_APP 􀞚"
+    LABEL_COLOR="$RED"
+  else
+    # Normal state
+    LABEL="$FRONT_APP"
+    LABEL_COLOR="$TEXT_COLOR"
+  fi
+  
+  # Set icon and label
   sketchybar --set "$NAME" \
     icon="$APP_ICON" \
-    label="$FRONT_APP" \
+    label="$LABEL" \
+    label.color="$LABEL_COLOR" \
     drawing=on
 else
   sketchybar --set "$NAME" drawing=off
