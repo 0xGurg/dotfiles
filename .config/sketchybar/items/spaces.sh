@@ -11,6 +11,7 @@ add_space_item() {
   sketchybar --add item space.$sid left \
     --subscribe space.$sid aerospace_workspace_change \
     --set space.$sid \
+      update_freq=2 \
       icon="$display_icon" \
       label.font="sketchybar-app-font:Regular:16.0" \
       script="$PLUGIN_DIR/aerospace.sh $sid" \
