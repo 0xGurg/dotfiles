@@ -1,6 +1,7 @@
 export BG1=0xff1F1F28 #Darkest
 export BG2=0xff363646
 export BG3=0xff54546D
+export ACCENT_COLOR=0xff957FB8
 export TEXT_COLOR=0xffDCD7BA
 export TEXT_COLOR2=0xff727169
 export ICON_COLOR=0xff957FB8

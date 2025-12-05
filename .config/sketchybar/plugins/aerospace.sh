@@ -9,6 +9,28 @@ if [ -z "$FOCUSED_WORKSPACE" ]; then
   FOCUSED_WORKSPACE=$(aerospace list-workspaces --focused)
 fi
 
+# Handle mouse hover events
+if [ "$SENDER" == "mouse.entered" ]; then
+  if [ "$WORKSPACE_ID" = "$FOCUSED_WORKSPACE" ]; then
+    exit 0
+  fi
+  sketchybar --animate sin 15 \
+    --set "$NAME" \
+        y_offset=5 y_offset=0
+  sketchybar --set "$NAME" \
+      background.border_color=$ACCENT_COLOR
+  exit 0
+fi
+
+if [ "$SENDER" == "mouse.exited" ]; then
+  if [ "$WORKSPACE_ID" = "$FOCUSED_WORKSPACE" ]; then
+    exit 0
+  fi
+  sketchybar --set "$NAME" \
+    background.border.color="$BORDER_COLOR"
+  exit 0
+fi
+
 # Check specific workspace
 WINDOW_COUNT=$(aerospace list-windows --workspace "$WORKSPACE_ID" 2>/dev/null | wc -l | tr -d ' ')
 
@@ -25,7 +47,7 @@ fi
 check_app_notifications() {
   local app_name="$1"
   local status_label=$(lsappinfo info -only StatusLabel "$app_name" 2>/dev/null)
-  
+
   if [[ $status_label =~ \"label\"=\"([^\"]*)\" ]]; then
     local label="${BASH_REMATCH[1]}"
     if [[ $label =~ ^[0-9]+$ ]]; then
@@ -52,7 +74,7 @@ for app in "${NOTIFICATION_APPS[@]}"; do
   # Check if this app is in the workspace
   if echo "$WORKSPACE_APPS" | grep -q "^${app}$"; then
     STATUS=$(check_app_notifications "$app")
-    
+
     # Priority: count > activity > none
     if [ "$STATUS" = "count" ]; then
       NOTIFICATION_STATUS="count"
@@ -79,14 +101,20 @@ if [[ "$WORKSPACE_ID" =~ ^[1-5]$ ]]; then
   else
     DISPLAY_LABEL="$APP_ICONS"
   fi
-  
+
   if [ "$IS_FOCUSED" = true ]; then
+    # Only animate on workspace change, not on regular updates
+    if [ "$SENDER" = "aerospace_workspace_change" ]; then
+      sketchybar --animate sin 10 \
+        --set "$NAME" \
+        y_offset=10 y_offset=0
+    fi
     sketchybar --set "$NAME" \
       drawing=on \
       icon.color=$ICON_COLOR \
-      label.color=$ICON_COLOR \
       label="$DISPLAY_LABEL" \
-      background.border_color=$BORDER_COLOR_VAL
+      label.color=$ICON_COLOR \
+      background.border_color=$ACCENT_COLOR
   else
     sketchybar --set "$NAME" \
       drawing=on \
@@ -96,4 +124,3 @@ if [[ "$WORKSPACE_ID" =~ ^[1-5]$ ]]; then
       background.border_color=$BORDER_COLOR_VAL
   fi
 fi
-
