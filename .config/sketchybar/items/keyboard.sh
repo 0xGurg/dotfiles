@@ -3,6 +3,7 @@
 source "$CONFIG_DIR/colors.sh"
 
 keyboard=(
+    padding_left=13
     script="$PLUGIN_DIR/keyboard.sh"
     click_script="osascript -e 'tell application \"System Events\" to keystroke \" \" using {control down, option down}'"
 )
