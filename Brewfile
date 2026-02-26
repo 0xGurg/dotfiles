@@ -34,6 +34,7 @@ brew "macmon"
 brew "atuin"
 brew "bat"
 brew "switchaudio-osx"
+brew "wireguard-tools"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
