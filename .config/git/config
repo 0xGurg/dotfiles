@@ -1,11 +1,28 @@
 [init]
 	defaultBranch = main
 
-[pull]
-	rebase = true
-
 [user]
 	email = george.luis.pagarigan@gmail.com
 	name = George Luis Pagarigan
 
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[fetch]
+	prune = true
+
+[rebase]
+	autoStash = true
+
+[rerere]
+	enabled = true
+
+[diff]
+	algorithm = histogram
+
+[merge]
+	conflictstyle = zdiff3
 

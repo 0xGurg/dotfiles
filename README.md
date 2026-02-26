@@ -1,24 +1,20 @@
 # Dotfiles
 
-Personal configuration files for macOS and Arch Linux development environments, managed with GNU Stow.
-
-**OS Support:**
-- ✅ **macOS** - Full support (Homebrew, Touch ID, all tools)
-- ✅ **Arch Linux** - Config files only (install packages via pacman/yay)
+Personal configuration files for macOS, managed with GNU Stow.
 
 ## 📁 Structure
 
 ```
 ~/dotfiles/
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
+├── Brewfile            # Homebrew packages and casks
 ├── .config/            # XDG config directory (stowed to ~/.config/)
-│   ├── brew/           # Homebrew Brewfile
-│   │   └── Brewfile    # All packages and casks
 │   ├── starship/       # Starship prompt
-│   │   └── starship.toml   # Prompt config (STARSHIP_CONFIG points here)
+│   │   └── starship.toml
 │   ├── git/            # Git configuration
-│   │   └── config      # Git settings
+│   │   └── config
 │   ├── aerospace/      # Window manager
+│   ├── atuin/          # Shell history database
 │   ├── btop/           # System monitor
 │   ├── fastfetch/      # System info
 │   ├── ghostty/        # Terminal emulator + themes
@@ -27,7 +23,9 @@ Personal configuration files for macOS and Arch Linux development environments, 
 │   ├── raycast/        # Raycast launcher
 │   └── sketchybar/     # macOS status bar
 ├── scripts/            # Setup and utility scripts
-│   └── setup.sh        # Bootstrap script
+│   ├── setup.sh        # Bootstrap script
+│   ├── nvhc.sh         # Cursor + Neovim split workflow
+│   └── enable-touchid-sudo.sh
 └── README.md           # This file
 ```
 
@@ -46,12 +44,11 @@ chmod +x scripts/setup.sh
 ```
 
 This will:
-- Detect your OS (macOS or Arch Linux)
-- Install Homebrew (if on macOS)
-- Install GNU Stow (if not installed)
+- Install Homebrew (if not installed)
+- Install GNU Stow
 - Create symlinks using stow: `cd ~/dotfiles && stow .`
-- Install all packages from Brewfile (macOS only)
-- Optionally enable Touch ID for sudo commands (macOS only)
+- Install all packages from Brewfile
+- Optionally enable Touch ID for sudo commands
 
 ### 3. Restart Terminal
 ```bash
@@ -70,6 +67,8 @@ source ~/.zshrc
 | **AeroSpace** | Window tiling manager |
 | **SketchyBar** | Custom macOS status bar |
 | **Lazygit** | Terminal UI for git |
+| **Zoxide** | Smart directory jumper (`z`, `zi`) |
+| **Atuin** | Shell history database with sync |
 | **Ollama** | Local LLM runner |
 
 ## 🔗 Symlink Management with Stow
@@ -94,35 +93,18 @@ stow -R .
 
 ## 📦 Package Management
 
-### macOS (Homebrew)
-
-#### Update Everything
+### Update Everything
 ```bash
 bbiu
 ```
 
 This alias runs:
 ```bash
-brew update && brew bundle install --cleanup --file=~/.config/brew/Brewfile && brew upgrade
+brew update && brew bundle install --cleanup --file=~/dotfiles/Brewfile && brew upgrade
 ```
 
-#### Add New Package
+### Add New Package
 Edit `Brewfile` and run `bbiu`.
-
-### Arch Linux (pacman/yay)
-
-The `Brewfile` is macOS-specific. On Arch Linux, install packages manually:
-
-```bash
-# Core packages (example)
-sudo pacman -S git neovim stow starship zsh zsh-autosuggestions \
-               zsh-syntax-highlighting zoxide ripgrep lazygit btop
-
-# AUR packages (with yay)
-yay -S ghostty
-```
-
-**Note:** The config files work on both systems, but package installation is OS-specific.
 
 ## 🎨 Customization
 
@@ -152,9 +134,11 @@ Edit `.config/git/config` for user settings.
 | `sz` | Reload shell config |
 | `nv` | Open neovim |
 | `nvh` | Open neovim in current dir |
+| `nvhc` | Cursor + Neovim split layout |
 | `lg` | Open lazygit |
 | `ff` | Show system info (fastfetch) |
-| `cdcfg` | cd to ~/.config |
+| `z <dir>` | Smart cd (zoxide) |
+| `zi` | Interactive directory picker |
 
 ## 🔄 Maintenance
 
@@ -173,28 +157,19 @@ aerospace reload-config
 # Restart or :Lazy sync
 ```
 
-## 🔐 Touch ID for sudo (macOS only)
+## 🔐 Touch ID for sudo
 
-Enable fingerprint authentication instead of password prompts in terminals (Ghostty, iTerm, etc.):
+Enable fingerprint authentication instead of password prompts in terminals:
 
 ```bash
 ./scripts/enable-touchid-sudo.sh
 ```
 
-Or run during initial setup (prompted automatically on macOS).
-
-After enabling, you can use your fingerprint for any `sudo` command!
-
-**Note:** This feature is macOS-only and will be automatically skipped on Linux systems.
+Or run during initial setup (prompted automatically).
 
 ## 📝 Notes
 
-- **Cross-platform**: Works on macOS and Arch Linux
-  - macOS: Full automation with Homebrew + Touch ID
-  - Arch Linux: Config files only (install packages manually)
-- **Tested on**:
-  - macOS: Apple Silicon (M1/M2/M4) Macs
-  - Linux: Arch Linux
+- **Tested on**: Apple Silicon Macs (M1/M2/M4)
 - **XDG Base Directory**: Follows `~/.config` standard
 - **Stow-based**: Uses GNU Stow for symlink management
 - **Git-tracked**: All configs versioned for easy restoration
