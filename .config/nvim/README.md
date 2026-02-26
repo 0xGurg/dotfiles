@@ -2,6 +2,8 @@
 
 A modern, minimal Neovim configuration focused on TypeScript/JavaScript development with LSP, notifications, and a clean UI.
 
+> 📋 **Quick Navigation**: See [INDEX.md](./INDEX.md) for a complete file catalog and inventory.
+
 ## 📁 Structure
 
 ```
@@ -150,7 +152,7 @@ local server_configs = {
 - **Statusline**: mini.statusline (minimal, fast)
 - **Tabline**: mini.tabline (buffer tabs)
 - **Git Signs**: mini.diff (inline diff signs)
-- **File Explorer**: mini.files (`<leader>e`)
+- **File Explorer**: mini.files (default explorer, `<leader>e`)
 - **Fuzzy Finder**: mini.pick
 - **Icons**: mini.icons (no patched font required)
 - **Indent Guides**: mini.indentscope
@@ -276,7 +278,8 @@ A collection of small, independent, fast Lua modules:
 
 ---
 
-**Last Updated**: November 2024  
+**Last Updated**: December 2025  
 **Neovim Version**: 0.11+  
-**Maintainer**: Setup optimized for TypeScript/JavaScript development
+**Maintainer**: Setup optimized for TypeScript/JavaScript development  
+**File Index**: See [INDEX.md](./INDEX.md) for complete file catalog
 

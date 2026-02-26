@@ -1,9 +1,10 @@
 add_newline = false
-command_timeout = 1000
+command_timeout = 500  # Reduced from 1000ms - skip slow modules if they take too long
 
 format = """$directory$git_branch$git_status
 $character"""
-right_format = """$nodejs$docker_context$kubernetes$gcloud$golang$cmd_duration"""
+# Moved slow modules (nodejs, kubernetes) to right_format so they render async
+right_format = """$cmd_duration"""
 
 # Kanagawa Colors:
 # crystalBlue: #7E9CD8  | springGreen: #98BB6C  | oniViolet: #957FB8
@@ -19,13 +20,14 @@ vicmd_symbol = '[❮](bold #FF9E3B)'
 
 [directory]
 truncation_length = 3
-truncate_to_repo = true
+truncate_to_repo = true  # Truncate to repo root (nicer looking)
 style = 'bold #7E9CD8'
 read_only = '[ 󰌾 ](#E46876)'
 
 [git_branch]
 format = '[ ](bold #957FB8)[$branch]($style)'
 style = '#DCD7BA'
+# Re-enabled - branch name is useful
 
 [git_status]
 format = '[$all_status$ahead_behind]($style)'
@@ -35,30 +37,35 @@ ahead = '[ ⇡ ](bold #98BB6C)${count}'
 behind = '[ ⇣ ](bold #FFA066)${count}'
 diverged = '[ ⇕ ](bold #FF9E3B)⇡${ahead_count} ⇣${behind_count}'
 untracked = '[  ](bold #7AA89F)${count}'
-stashed = '[ 󰏗 ](bold #957FB8)'
+stashed = ''  # Disabled - stash check is slow
 modified = '[  ](bold #DCA561)${count}'
 staged = '[ 󰐗 ](bold #76946A)${count}'
 deleted = '[ 󰍴 ](bold #C34043)${count}'
+disabled = true  # Disabled due to SentinelOne causing ~300ms per git call. Use `git status` manually.
 
 [nodejs]
 format = '[  ](bold #98BB6C)[$version](#DCD7BA)'
 detect_files = ['package.json', '.nvmrc']
-detect_folders = ['node_modules']
+detect_folders = []  # Don't scan for node_modules (slow!)
+disabled = true  # Disable for faster prompt - you know your node version
 
 [docker_context]
 format = '[ 󰡨 ](bold #7FB4CA)[$context](#DCD7BA)'
+disabled = true  # Disable - rarely needed in prompt
 
 [kubernetes]
 format = '[ 󱃾 ](bold #7FB4CA)[$context( \($namespace\))]($style)'
 style = '#DCD7BA'
-disabled = false
+disabled = true  # Disable for faster prompt - kubectl config current-context is slow
 
 [gcloud]
 format = '[ 󱇶 ](bold #7E9CD8)[$account(@$domain)(\($region\))]($style)'
 style = '#DCD7BA'
+disabled = true  # Disable - gcloud calls are slow
 
 [golang]
 format = '[  ](bold #7AA89F)[$version](#DCD7BA)'
+disabled = true  # Disable - version detection is slow
 
 [helm]
 format = '[ 󱃾 ](bold #7FB4CA)[$version](#DCD7BA)'
