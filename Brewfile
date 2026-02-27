@@ -1,5 +1,6 @@
 tap "FelixKratz/formulae"
 tap "nikitabobko/tap"
+tap "0xGurg/distillery"
 
 brew "git"
 brew "nvim"
@@ -30,6 +31,11 @@ brew "atuin"
 brew "bat"
 brew "switchaudio-osx"
 brew "wireguard-tools"
+brew "oven-sh/bun/bun"
+brew "k3d"
+brew "colima"
+brew "docker"
+brew "alaala"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
