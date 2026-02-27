@@ -131,5 +131,11 @@ function sdk() {
 # ============================================================================
 # STARTUP
 # ============================================================================
-# fastfetch removed from auto-startup (saves ~2.6 seconds)
-# Run 'ff' manually when you want to see system info
+ff
+
+# bun completions
+[ -s "/Users/georgepagarigan/.bun/_bun" ] && source "/Users/georgepagarigan/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
