@@ -109,7 +109,7 @@ install_packages() {
   if [[ "$OS" == "macos" ]]; then
     print_status "Installing packages via Homebrew..."
     brew update
-    brew bundle install --cleanup --file="$DOTFILES_DIR/Brewfile"
+    brew bundle install --verbose --cleanup --file="$DOTFILES_DIR/Brewfile"
     brew upgrade
     print_success "All packages installed"
   elif [[ "$OS" == "arch" ]]; then
@@ -159,7 +159,7 @@ auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
 main() {
   echo ""
   echo "╔═══════════════════════════════════════════════════════════════╗"
-  echo "║               🛠️  Dotfiles Setup Script                       ║"
+  echo "                🛠️  Dotfiles Setup Script                        "
   echo "╚═══════════════════════════════════════════════════════════════╝"
   echo ""
 
