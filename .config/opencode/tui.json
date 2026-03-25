@@ -1,0 +1,8 @@
+{
+	"$schema": "https://opencode.ai/tui.json",
+	"theme": "kanagawa",
+	"keybinds": {
+		"leader": "ctrl+o",
+		"app_exit": "ctrl+c,q"
+	}
+}

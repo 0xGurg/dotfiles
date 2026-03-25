@@ -9,7 +9,7 @@ setopt AUTO_CD
 export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
 export PATH="$HOME/.local/bin:$PATH"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
-
+export EDITOR=nvim
 # ============================================================================
 # ALIASES
 # ============================================================================
