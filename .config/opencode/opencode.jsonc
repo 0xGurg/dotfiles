@@ -1,0 +1,81 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"model": "github-copilot/claude-sonnet-4.6",
+	"small_model": "github-copilot/claude-haiku-4.5",
+	"autoupdate": true,
+	"default_agent": "zero",
+	// Only allow GitHub Copilot + OpenCode Zen providers
+	"enabled_providers": [
+		"github-copilot",
+		"opencode"
+	],
+	// Disable built-in agents — Zero and Senku replace them
+	"agent": {
+		"build": {
+			"disable": true
+		},
+		"plan": {
+			"disable": true
+		},
+		"zero": {
+			"mode": "primary",
+			"color": "#54546D"
+		},
+		"senku": {
+			"mode": "primary",
+			"color": "#6A9589",
+		},
+		"mimo-reviewer": {
+			"mode": "subagent",
+			"color": "#7E9CD8"
+		},
+		"minimax-reviewer": {
+			"mode": "subagent",
+			"color": "#957FB8"
+		},
+	},
+	// Rename models to short, friendly names
+	"provider": {
+		"github-copilot": {
+			"models": {
+				"claude-opus-4.6": {
+					"name": "Opus 4.6 (3x Planner)"
+				},
+				"gpt-5.4": {
+					"name": "GPT 5.4 (1x Planner)"
+				},
+				"gpt-4.1": {
+					"name": "GPT 4.1 (0x Planner)"
+				},
+				"gpt-5.3-codex": {
+					"name": "Codex 5.3 (1x Executor)"
+				},
+				"claude-sonnet-4.6": {
+					"name": "Sonnet 4.6 (1x Executor)"
+				},
+				"gpt-5-mini": {
+					"name": "GPT 5 Mini (0x Executor/Ask)"
+				},
+				"claude-haiku-4.5": {
+					"name": "Haiku 4.5 (0.33x Ask)"
+				},
+			}
+		},
+		"opencode": {
+			"models": {
+				"big-pickle": {
+					"name": "Big Pickle (Executor)"
+				},
+				"mimo-v2-omni-free": {
+					"name": "Mimo Omni (Planner)"
+				},
+				"mimo-v2-pro-free": {
+					"name": "Mimo Pro (Ask)"
+				},
+				"minimax-m2.5-free": {
+					"name": "MiniMax M2.5 (Planner)"
+				}
+			}
+		}
+	}
+}
