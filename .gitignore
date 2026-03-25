@@ -1,5 +1,8 @@
 .env
 
+# Sanity CLI auth (contains auth tokens)
+.config/sanity/
+
 # Zsh history and cache (at $HOME level)
 .zsh_history
 .zcompdump*
