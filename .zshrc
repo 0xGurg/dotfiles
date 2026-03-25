@@ -15,7 +15,7 @@ export EDITOR=nvim
 # ============================================================================
 
 # System
-alias bbiu="brew update && brew bundle install --cleanup --file=~/dotfiles/Brewfile && brew upgrade"
+alias bbiu="brew update && brew bundle install --verbose --cleanup --file=~/dotfiles/Brewfile && brew upgrade"
 alias cl="clear"
 alias ff="fastfetch"
 alias q="exit"
