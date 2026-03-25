@@ -10,6 +10,9 @@ export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
 export PATH="$HOME/.local/bin:$PATH"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
+
+# Load secrets from .env (gitignored)
+[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env" && export SANITY_AUTH_TOKEN
 # ============================================================================
 # ALIASES
 # ============================================================================
