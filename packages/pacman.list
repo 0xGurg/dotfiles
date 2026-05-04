@@ -1,0 +1,51 @@
+# Dotfiles: Declarative Arch Linux package list
+# Run: sudo pacman -S --needed $(grep -v '^#' packages/pacman.list)
+# Or use: pkgup (from .zshrc)
+
+# --- GPU / Display ---
+vulkan-intel
+intel-media-driver
+nvidia-open
+nvidia-utils
+qt5-wayland
+qt6-wayland
+
+# --- Shell & CLI (from Brewfile) ---
+git
+stow
+fastfetch
+starship
+zoxide
+atuin
+bat
+ripgrep
+lazygit
+shfmt
+zsh-autosuggestions
+zsh-syntax-highlighting
+
+# --- Desktop ---
+hyprland
+xdg-desktop-portal-hyprland
+
+# --- Fonts ---
+ttf-hack-nerd
+ttf-jetbrains-mono-nerd
+noto-fonts
+noto-fonts-cjk
+
+# --- Terminal ---
+ghostty
+
+# --- Dev ---
+neovim
+fnm
+pnpm
+cmake
+openssl
+
+# --- Infra / Apps ---
+wireguard-tools
+ollama
+btop
+bitwarden
