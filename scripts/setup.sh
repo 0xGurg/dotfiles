@@ -122,36 +122,60 @@ setup_stow() {
 setup_symlinks() {
   print_status "Creating symlinks with stow..."
 
-  # Backup existing files that aren't symlinks (prevents stow conflicts)
-  backup_existing() {
-    local target="$1"
-    if [[ -f "$target" && ! -L "$target" ]]; then
-      print_warning "Backing up existing $target to $target.bak"
-      mv "$target" "$target.bak"
-    elif [[ -d "$target" && ! -L "$target" ]]; then
-      # Only backup directories that aren't symlinks and aren't standard XDG dirs
-      local basename=$(basename "$target")
-      if [[ "$basename" != ".config" && "$basename" != ".local" ]]; then
-        print_warning "Backing up existing directory $target to $target.bak"
-        mv "$target" "$target.bak"
+  local BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+
+  # Check if a target path has a symlink ancestor (meaning it's already
+  # reachable through a stow-managed symlink and shouldn't be moved)
+  has_symlink_ancestor() {
+    local check="$1"
+    while [[ "$check" != "/" && "$check" != "$HOME" ]]; do
+      if [[ -L "$check" ]]; then
+        return 0  # found symlink ancestor
       fi
+      check=$(dirname "$check")
+    done
+    return 1  # no symlink ancestor
+  }
+
+  # Back up files that would conflict with stow.
+  # Moves them to ~/.dotfiles-backup/TIMESTAMP/ preserving relative path.
+  backup_existing() {
+    local target="$1" rel="$2"
+
+    # Already a symlink — stow will handle it
+    if [[ -L "$target" ]]; then
+      return
+    fi
+
+    # Regular file or directory that isn't a symlink
+    if [[ -f "$target" ]] || [[ -d "$target" ]]; then
+      # Skip if target is reachable through an existing symlink (e.g., from
+      # a previous stow run). Moving it would delete the file from the repo.
+      if has_symlink_ancestor "$target"; then
+        return
+      fi
+
+      print_warning "Backing up $target → $BACKUP_DIR/$rel"
+      mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+      mv "$target" "$BACKUP_DIR/$rel"
     fi
   }
 
-  # Check for conflicts in files we want to stow
+  # Scan for files in the dotfiles repo that would become symlink targets,
+  # and back up any existing non-symlink files at those paths
   while IFS= read -r -d '' file; do
     local rel="${file#$DOTFILES_DIR/}"
-    # Skip ignored paths
+
+    # Skip paths that shouldn't be stowed
     [[ "$rel" == scripts/* ]] && continue
     [[ "$rel" == packages/* ]] && continue
     [[ "$rel" == .git/* ]] && continue
     [[ "$rel" == README* ]] && continue
     [[ "$rel" == Brewfile ]] && continue
-    [[ "$rel" == *.bak* ]] && continue
 
     local target="$HOME/$rel"
-    backup_existing "$target"
-  done < <(find "$DOTFILES_DIR" \( -type f -o -type l \) ! -path '*/.git/*' ! -name '*.bak' ! -name '*.bak.*' -print0)
+    backup_existing "$target" "$rel"
+  done < <(find "$DOTFILES_DIR" \( -type f -o -type l \) ! -path '*/.git/*' -print0)
 
   cd "$DOTFILES_DIR"
 
@@ -165,6 +189,11 @@ setup_symlinks() {
   esac
 
   print_success "Symlinks created"
+  if [[ -d "$BACKUP_DIR" ]] && [[ "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]]; then
+    print_status "Backups stored in $BACKUP_DIR"
+  else
+    rmdir "$BACKUP_DIR" 2>/dev/null || true
+  fi
 }
 
 # ============================================================================
