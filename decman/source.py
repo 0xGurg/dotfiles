@@ -82,6 +82,7 @@ decman.pacman.packages |= {
     "ripgrep",
     "lazygit",
     "shfmt",
+    "jq",
     "zsh-autosuggestions",
     "zsh-syntax-highlighting",
 }
@@ -139,12 +140,10 @@ if decman.flatpak is not None:
 # =============================================================================
 # AUR PACKAGES
 # Built via devtools/makepkg — no yay required.
-#
-# NOTE: howdy-git removed — its python-dlib dependency requires CUDA build
-# which is incompatible with GCC 16 / CUDA 13. Revisit when fixed upstream.
 # =============================================================================
 decman.aur.packages |= {
     "decman",
     "brave-bin",
     "zapzap",
+    # "howdy-git",  # TODO: blocked — python-dlib→CUDA build fails with GCC 16 / CUDA 13
 }

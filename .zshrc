@@ -65,7 +65,7 @@ pkgup() {
 
     # Cleanup: remove globals not declared in pnpm.list
     local pkg
-    for pkg in $(pnpm list -g --depth=0 2>/dev/null | awk 'NF==2 {print $1}'); do
+    for pkg in $(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]'); do
       grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
         || pnpm remove -g "$pkg"
     done
