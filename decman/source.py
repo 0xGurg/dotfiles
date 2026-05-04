@@ -1,35 +1,3 @@
-import decman
-
-# =============================================================================
-# SYSTEM
-# Core packages required for a bootable, functional Arch system.
-# =============================================================================
-decman.pacman.packages |= {
-    "base",
-    "base-devel",
-    "linux",
-    "linux-firmware",
-    "sudo",
-    "zsh",
-    "ufw",
-    "iwd",
-    "lvm2",
-    "sbctl",
-    "efibootmgr",
-    "intel-ucode",
-    "zram-generator",
-    "openssh",
-    "lsof",
-}
-
-# =============================================================================
-# BLUETOOTH & FIRMWARE
-# =============================================================================
-decman.pacman.packages |= {
-    "bluez",
-    "bluez-utils",
-    "sof-firmware",
-}
 
 # =============================================================================
 # AUDIO
@@ -64,13 +32,7 @@ decman.pacman.packages |= {
 # =============================================================================
 decman.pacman.packages |= {
     "hyprland",
-    "hyprpaper",
     "xdg-desktop-portal-hyprland",
-    "polkit-gnome",
-    "grim",
-    "slurp",
-    "cliphist",
-    "dunst",
 }
 
 # =============================================================================
@@ -140,6 +102,6 @@ decman.aur.packages |= {
     "decman",
     "brave-bin",
     "howdy-git",
-    "spotify-launcher",
+    "spotify",
     "whatsapp-desktop",
 }
