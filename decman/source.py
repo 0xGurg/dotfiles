@@ -127,10 +127,14 @@ decman.pacman.packages |= {
 
 # =============================================================================
 # FLATPAK
+# decman.flatpak is None when the flatpak binary is not installed yet.
+# On a fresh system, setup.sh installs flatpak via pacman first, then reruns
+# decman so the plugin registers and this block takes effect.
 # =============================================================================
-decman.flatpak.packages |= {
-    "com.spotify.Client",
-}
+if decman.flatpak is not None:
+    decman.flatpak.packages |= {
+        "com.spotify.Client",
+    }
 
 # =============================================================================
 # AUR PACKAGES
