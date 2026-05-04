@@ -1,0 +1,8 @@
+# Dotfiles: Declarative AUR package list
+# Run: yay -S --needed $(grep -v '^#' packages/yay.list)
+# Or use: pkgup (from .zshrc)
+
+howdy-git
+brave-bin
+spotify-launcher
+whatsapp-desktop
