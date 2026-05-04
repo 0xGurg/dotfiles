@@ -209,9 +209,13 @@ install_packages() {
       print_success "All packages installed"
       ;;
     arch)
-      print_status "Installing packages with decman..."
-      sudo decman --source "$DOTFILES_DIR/decman/source.py"
-      print_success "Packages installed"
+      print_status "Installing native packages with decman..."
+      sudo decman --source "$DOTFILES_DIR/decman/source.py" --skip aur
+      print_success "Native packages installed"
+
+      print_status "Building AUR packages with decman..."
+      sudo decman
+      print_success "AUR packages installed"
 
       if [[ -f "$DOTFILES_DIR/packages/pnpm.list" ]]; then
         print_status "Installing global pnpm packages..."
