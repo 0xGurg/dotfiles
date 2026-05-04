@@ -210,8 +210,12 @@ install_packages() {
       ;;
     arch)
       print_status "Installing native packages with decman..."
-      sudo decman --source "$DOTFILES_DIR/decman/source.py" --skip aur
+      sudo decman --source "$DOTFILES_DIR/decman/source.py" --skip aur --skip flatpak
       print_success "Native packages installed"
+
+      print_status "Installing flatpak apps with decman..."
+      sudo decman --skip aur
+      print_success "Flatpak apps installed"
 
       print_status "Building AUR packages with decman..."
       sudo decman
