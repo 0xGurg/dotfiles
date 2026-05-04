@@ -56,8 +56,19 @@ pkgup() {
   if [[ "$OS" == "macos" ]]; then
     brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
   elif [[ "$OS" == "linux" ]]; then
-    sudo decman \
-      && pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$HOME/dotfiles/packages/pnpm.list")
+    local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
+
+    sudo decman || return 1
+
+    pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
+    pnpm update -g
+
+    # Cleanup: remove globals not declared in pnpm.list
+    local pkg
+    for pkg in $(pnpm list -g --depth=0 2>/dev/null | awk 'NF==2 {print $1}'); do
+      grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
+        || pnpm remove -g "$pkg"
+    done
   fi
 }
 
