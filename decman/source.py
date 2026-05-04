@@ -103,5 +103,5 @@ decman.aur.packages |= {
     "brave-bin",
     "howdy-git",
     "spotify",
-    "whatsapp-desktop",
+    "zapzap",
 }
