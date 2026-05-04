@@ -23,6 +23,7 @@ lazygit
 shfmt
 zsh-autosuggestions
 zsh-syntax-highlighting
+openssh
 
 # --- Desktop ---
 hyprland
