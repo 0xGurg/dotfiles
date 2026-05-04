@@ -140,13 +140,11 @@ if decman.flatpak is not None:
 # AUR PACKAGES
 # Built via devtools/makepkg — no yay required.
 #
-# NOTE: On first run, AUR builds (especially howdy-git) may need GPG keys or
-# extra setup. Use `sudo decman --skip aur` to apply pacman packages first,
-# then run `sudo decman` to build AUR packages separately.
+# NOTE: howdy-git removed — its python-dlib dependency requires CUDA build
+# which is incompatible with GCC 16 / CUDA 13. Revisit when fixed upstream.
 # =============================================================================
 decman.aur.packages |= {
     "decman",
     "brave-bin",
-    "howdy-git",
     "zapzap",
 }
