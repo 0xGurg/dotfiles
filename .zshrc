@@ -1,4 +1,12 @@
 # ============================================================================
+# OS DETECTION
+# ============================================================================
+case "$(uname -s)" in
+  Darwin*) OS="macos" ;;
+  Linux*)  OS="linux"  ;;
+esac
+
+# ============================================================================
 # SHELL OPTIONS
 # ============================================================================
 setopt AUTO_CD
@@ -6,19 +14,19 @@ setopt AUTO_CD
 # ============================================================================
 # ENVIRONMENT VARIABLES
 # ============================================================================
-export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
+[[ "$OS" == "macos" ]] && export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
 export PATH="$HOME/.local/bin:$PATH"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
 
 # Load secrets from .env (gitignored)
 [[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env" && export SANITY_AUTH_TOKEN
+
 # ============================================================================
 # ALIASES
 # ============================================================================
 
 # System
-alias bbiu="brew update && brew bundle install --verbose --cleanup --file=~/dotfiles/Brewfile && brew upgrade"
 alias cl="clear"
 alias ff="fastfetch"
 alias q="exit"
@@ -34,12 +42,35 @@ alias rmd="rm -rf"
 # Editor
 alias nv="nvim"
 alias nvh="nvim ."
-alias nvhc="$HOME/dotfiles/scripts/nvhc.sh"
+[[ "$OS" == "macos" ]] && alias nvhc="$HOME/dotfiles/scripts/nvhc.sh"
 
 # Git
 alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
 alias lg="lazygit"
+
+# ============================================================================
+# PKGUP - Declarative Package Manager (cross-platform)
+# ============================================================================
+pkgup() {
+  if [[ "$OS" == "macos" ]]; then
+    brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+  elif [[ "$OS" == "linux" ]]; then
+    local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
+
+    sudo decman || return 1
+
+    pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
+    pnpm update -g
+
+    # Cleanup: remove globals not declared in pnpm.list
+    local pkg
+    for pkg in $(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]'); do
+      grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
+        || pnpm remove -g "$pkg"
+    done
+  fi
+}
 
 # ============================================================================
 # BAT (Modern cat replacement)
@@ -60,8 +91,12 @@ bindkey jj vi-cmd-mode
 # ============================================================================
 
 # Kill process on specific port
-function killport() {
-  lsof -ti:$1 | xargs kill -9
+killport() {
+  if [[ "$OS" == "macos" ]]; then
+    lsof -ti:$1 | xargs kill -9
+  else
+    fuser -k "$1"/tcp 2>/dev/null
+  fi
 }
 
 # ============================================================================
@@ -70,22 +105,27 @@ function killport() {
 
 # Initialize zsh completion system (required for kubectl, etc.)
 autoload -Uz compinit
-# Only regenerate completion dump once per day for speed
 if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
   compinit
 else
   compinit -C
 fi
 
-# zsh-autosuggestions (installed via brew)
-if [[ -f "/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# zsh-autosuggestions
+if [[ "$OS" == "macos" ]]; then
+  ZSH_AUTOSUGGEST_PATH="/opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+else
+  ZSH_AUTOSUGGEST_PATH="/usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
+[[ -f "$ZSH_AUTOSUGGEST_PATH" ]] && source "$ZSH_AUTOSUGGEST_PATH"
 
-# zsh-syntax-highlighting (installed via brew - must be last)
-if [[ -f "/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# zsh-syntax-highlighting (must be last)
+if [[ "$OS" == "macos" ]]; then
+  ZSH_SYNTAX_HIGHLIGHTING_PATH="/opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+else
+  ZSH_SYNTAX_HIGHLIGHTING_PATH="/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+[[ -f "$ZSH_SYNTAX_HIGHLIGHTING_PATH" ]] && source "$ZSH_SYNTAX_HIGHLIGHTING_PATH"
 
 # Kubernetes completion (cached for speed)
 if command -v kubectl &> /dev/null; then
@@ -95,6 +135,13 @@ if command -v kubectl &> /dev/null; then
     kubectl completion zsh > "$KUBECTL_COMPLETION_CACHE" 2>/dev/null
   fi
   [[ -f "$KUBECTL_COMPLETION_CACHE" ]] && source "$KUBECTL_COMPLETION_CACHE"
+fi
+
+# ============================================================================
+# FNM (Fast Node Manager)
+# ============================================================================
+if command -v fnm &> /dev/null; then
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
 # ============================================================================
@@ -115,30 +162,14 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
 # ============================================================================
-# SDKMAN - LAZY LOADING (saves ~1.3 seconds)
-# ============================================================================
-export SDKMAN_DIR="$HOME/.sdkman"
-
-# Add SDKMAN candidates to PATH immediately (without loading full sdkman)
-if [[ -d "$SDKMAN_DIR/candidates/java/current/bin" ]]; then
-  export PATH="$SDKMAN_DIR/candidates/java/current/bin:$PATH"
-fi
-
-# Lazy load sdk command
-function sdk() {
-  unfunction sdk
-  [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-  sdk "$@"
-}
-
-# ============================================================================
 # STARTUP
 # ============================================================================
 ff
 
-# bun completions
-[ -s "/Users/georgepagarigan/.bun/_bun" ] && source "/Users/georgepagarigan/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+# pnpm
+export PNPM_HOME="/home/gurg/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
