@@ -2,7 +2,7 @@
 # ============================================================================
 # Dotfiles Setup Script
 # Run this after cloning dotfiles repo to set up symlinks and install packages
-# Supports: macOS (Homebrew) and Arch Linux (pacman + yay)
+# Supports: macOS (Homebrew) and Arch Linux (pacman + decman)
 # ============================================================================
 
 set -e
@@ -68,29 +68,29 @@ setup_homebrew() {
 }
 
 # ============================================================================
-# YAY (Arch only)
+# DECMAN (Arch only)
 # ============================================================================
-setup_yay() {
+setup_decman() {
   if [[ "$OS" != "arch" ]]; then
     return 0
   fi
 
-  print_status "Setting up yay (AUR helper)..."
+  print_status "Setting up decman..."
 
-  if command -v yay &> /dev/null; then
-    print_success "yay already installed"
+  if command -v decman &> /dev/null; then
+    print_success "decman already installed"
     return 0
   fi
 
-  print_status "Installing base-devel and git (required for yay)..."
+  print_status "Installing base-devel and git (required for building AUR packages)..."
   sudo pacman -S --needed base-devel git
 
-  print_status "Building yay from AUR..."
-  git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
-  (cd /tmp/yay-bin && makepkg -si --noconfirm)
-  rm -rf /tmp/yay-bin
+  print_status "Building decman from AUR..."
+  git clone https://aur.archlinux.org/decman.git /tmp/decman
+  (cd /tmp/decman && makepkg -si --noconfirm)
+  rm -rf /tmp/decman
 
-  print_success "yay installed"
+  print_success "decman installed"
 }
 
 # ============================================================================
@@ -209,27 +209,13 @@ install_packages() {
       print_success "All packages installed"
       ;;
     arch)
-      print_status "Installing packages..."
+      print_status "Installing packages with decman..."
+      sudo decman --source "$DOTFILES_DIR/decman/source.py"
+      print_success "Packages installed"
 
-      local PACMAN_LIST="$DOTFILES_DIR/packages/pacman.list"
-      local YAY_LIST="$DOTFILES_DIR/packages/yay.list"
-      local PNPM_LIST="$DOTFILES_DIR/packages/pnpm.list"
-
-      if [[ -f "$PACMAN_LIST" ]]; then
-        print_status "Installing pacman packages..."
-        sudo pacman -S --needed $(sed -n '/^[^#[:space:]]/p' "$PACMAN_LIST")
-        print_success "Pacman packages installed"
-      fi
-
-      if [[ -f "$YAY_LIST" ]]; then
-        print_status "Installing AUR packages..."
-        yay -S --needed $(sed -n '/^[^#[:space:]]/p' "$YAY_LIST")
-        print_success "AUR packages installed"
-      fi
-
-      if [[ -f "$PNPM_LIST" ]]; then
+      if [[ -f "$DOTFILES_DIR/packages/pnpm.list" ]]; then
         print_status "Installing global pnpm packages..."
-        pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
+        pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$DOTFILES_DIR/packages/pnpm.list")
         print_success "Global pnpm packages installed"
       fi
 
@@ -276,23 +262,12 @@ setup_touchid() {
 
 setup_howdy() {
   if ! command -v howdy &> /dev/null; then
-    echo ""
-    print_warning "Howdy provides facial recognition for sudo/lock screen (similar to Touch ID on macOS)"
-    read -p "Install and configure Howdy? (y/N): " -n 1 -r
-    echo ""
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      print_status "Installing Howdy..."
-      yay -S --needed howdy
-      print_success "Howdy installed"
-      print_warning "Howdy requires manual configuration:"
-      echo "  1. Add your face: sudo howdy add"
-      echo "  2. Test: sudo howdy test"
-      echo "  3. Edit config: sudo howdy config"
-      echo "  PAM is configured in /etc/pam.d/ (refer to Howdy docs)"
-    else
-      print_status "Skipping Howdy setup"
-    fi
+    print_warning "Howdy (facial recognition for sudo) is declared in decman/source.py"
+    print_warning "Run 'sudo decman' to install it, then configure:"
+    echo "  1. Add your face: sudo howdy add"
+    echo "  2. Test: sudo howdy test"
+    echo "  3. Edit config: sudo howdy config"
+    echo "  PAM is configured in /etc/pam.d/ (refer to Howdy docs)"
   else
     print_success "Howdy already installed"
   fi
@@ -305,11 +280,6 @@ post_install() {
   if [[ "$OS" == "arch" ]]; then
     # Start/Enable services
     print_status "Enabling services..."
-
-    if command -v docker &> /dev/null; then
-      sudo systemctl enable --now docker 2>/dev/null && print_success "Docker enabled" || print_warning "Could not enable docker"
-      sudo usermod -aG docker "$USER" 2>/dev/null || true
-    fi
 
     if command -v ufw &> /dev/null; then
       sudo systemctl enable --now ufw 2>/dev/null && print_success "UFW enabled" || true
@@ -329,7 +299,7 @@ main() {
 
   detect_os
   setup_homebrew
-  setup_yay
+  setup_decman
   setup_stow
   setup_symlinks
   install_packages

@@ -56,12 +56,8 @@ pkgup() {
   if [[ "$OS" == "macos" ]]; then
     brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
   elif [[ "$OS" == "linux" ]]; then
-    sudo pacman -Sy \
-      && yay -S --needed $(sed -n '/^[^#[:space:]]/p' "$HOME/dotfiles/packages/pacman.list") \
-      && yay -S --needed $(sed -n '/^[^#[:space:]]/p' "$HOME/dotfiles/packages/yay.list") \
-      && pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$HOME/dotfiles/packages/pnpm.list") \
-      && sudo pacman -Su \
-      && yay -Yc
+    sudo decman \
+      && pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$HOME/dotfiles/packages/pnpm.list")
   fi
 }
 
