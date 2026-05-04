@@ -1,3 +1,37 @@
+import decman
+
+decman.execution_order = ["files", "pacman", "aur", "flatpak", "systemd"]
+
+# =============================================================================
+# SYSTEM
+# Core packages required for a bootable, functional Arch system.
+# =============================================================================
+decman.pacman.packages |= {
+    "base",
+    "base-devel",
+    "linux",
+    "linux-firmware",
+    "sudo",
+    "zsh",
+    "ufw",
+    "iwd",
+    "lvm2",
+    "sbctl",
+    "efibootmgr",
+    "intel-ucode",
+    "zram-generator",
+    "openssh",
+    "lsof",
+}
+
+# =============================================================================
+# BLUETOOTH & FIRMWARE
+# =============================================================================
+decman.pacman.packages |= {
+    "bluez",
+    "bluez-utils",
+    "sof-firmware",
+}
 
 # =============================================================================
 # AUDIO
@@ -28,7 +62,6 @@ decman.pacman.packages |= {
 
 # =============================================================================
 # WAYLAND / DESKTOP
-# Hyprland compositor + supporting utilities.
 # =============================================================================
 decman.pacman.packages |= {
     "hyprland",
@@ -88,6 +121,14 @@ decman.pacman.packages |= {
     "ollama",
     "wireguard-tools",
     "bitwarden",
+    "flatpak",
+}
+
+# =============================================================================
+# FLATPAK
+# =============================================================================
+decman.flatpak.packages |= {
+    "com.spotify.Client",
 }
 
 # =============================================================================
@@ -102,6 +143,5 @@ decman.aur.packages |= {
     "decman",
     "brave-bin",
     "howdy-git",
-    "spotify",
     "zapzap",
 }
