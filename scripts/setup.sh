@@ -181,7 +181,7 @@ setup_symlinks() {
 
   case "$OS" in
     macos)
-      stow --ignore='hypr' --ignore='quickshell' -v .
+      stow -v .
       ;;
     arch|linux)
       stow --ignore='Brewfile' --ignore='aerospace' --ignore='sketchybar' --ignore='raycast' -v .
