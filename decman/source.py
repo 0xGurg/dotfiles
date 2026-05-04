@@ -122,6 +122,7 @@ decman.pacman.packages |= {
     "wireguard-tools",
     "bitwarden",
     "flatpak",
+    "steam",
 }
 
 # =============================================================================
