@@ -2,5 +2,4 @@
 # Run: pnpm add -g $(grep -v '^#' packages/pnpm.list)
 # Or use: pkgup (from .zshrc)
 
-opencode-ai
 supabase
