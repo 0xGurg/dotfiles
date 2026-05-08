@@ -1,5 +1,12 @@
 .env
 
+# Local/sensitive app data
+.config/BraveSoftware/
+.config/dconf/
+.config/hypr/
+.config/pulse/
+.config/rclone/
+
 # Sanity CLI auth (contains auth tokens)
 .config/sanity/
 
