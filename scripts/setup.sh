@@ -154,6 +154,50 @@ auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
 }
 
 # ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+setup_env() {
+  print_status "Setting up environment variables..."
+
+  if [[ -f "$DOTFILES_DIR/.env" ]]; then
+    print_success ".env already exists"
+    return 0
+  fi
+
+  if [[ ! -f "$DOTFILES_DIR/.env.example" ]]; then
+    print_warning "No .env.example found, skipping"
+    return 0
+  fi
+
+  cp "$DOTFILES_DIR/.env.example" "$DOTFILES_DIR/.env"
+  print_success "Created .env from .env.example"
+  print_warning "Edit ~/dotfiles/.env and fill in your secrets before using OpenCode"
+}
+
+# ============================================================================
+# OPENCODE PLUGINS
+# ============================================================================
+setup_opencode() {
+  print_status "Installing OpenCode plugins..."
+
+  local opencode_dir="$DOTFILES_DIR/.config/opencode"
+  if [[ ! -f "$opencode_dir/package.json" ]]; then
+    print_warning "No OpenCode package.json found, skipping"
+    return 0
+  fi
+
+  if ! command -v pnpm &>/dev/null; then
+    print_warning "pnpm not found, skipping OpenCode plugin install"
+    print_warning "Install pnpm and run: cd ~/.config/opencode && pnpm install"
+    return 0
+  fi
+
+  (cd "$opencode_dir" && pnpm install --frozen-lockfile 2>/dev/null) \
+    && print_success "OpenCode plugins installed" \
+    || print_warning "OpenCode plugin install failed — run manually: cd ~/.config/opencode && pnpm install"
+}
+
+# ============================================================================
 # MAIN
 # ============================================================================
 main() {
@@ -169,18 +213,22 @@ main() {
   setup_symlinks
   install_packages
   setup_touchid
+  setup_env
+  setup_opencode
 
   echo ""
   print_success "Setup complete! 🎉"
   echo ""
   echo "Next steps:"
   echo "  1. Restart your terminal or run: source ~/.zshrc"
+  echo "  2. Edit ~/dotfiles/.env and fill in your secrets"
   if [[ "$OS" == "macos" ]]; then
-    echo "  2. Run 'bbiu' anytime to update packages"
-    echo "  3. Try 'sudo ls' to test Touch ID authentication"
+    echo "  3. Run 'bbiu' anytime to update packages"
+    echo "  4. Try 'sudo ls' to test Touch ID authentication"
+    echo "  5. Run ~/.config/opencode/scripts/refresh-opencode-quota.sh to set up OpenCode Go auth"
   elif [[ "$OS" == "arch" ]]; then
-    echo "  2. Install Arch packages manually with pacman/yay"
-    echo "  3. Adjust configs as needed for your Arch setup"
+    echo "  3. Install Arch packages manually with pacman/yay"
+    echo "  4. Adjust configs as needed for your Arch setup"
   fi
   echo ""
   echo "To uninstall symlinks, run: cd ~/dotfiles && stow -D ."
