@@ -12,7 +12,7 @@ export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
 
 # Load secrets from .env (gitignored)
-[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env" && export SANITY_AUTH_TOKEN
+[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env"
 # ============================================================================
 # ALIASES
 # ============================================================================
@@ -41,6 +41,11 @@ alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
 alias lg="lazygit"
 
+# Wireguard
+alias wg="sudo wg"
+alias wgu="wg-quick up"
+alias wgd="wg-quick down"
+
 # ============================================================================
 # BAT (Modern cat replacement)
 # ============================================================================
@@ -62,6 +67,12 @@ bindkey jj vi-cmd-mode
 # Kill process on specific port
 function killport() {
   lsof -ti:$1 | xargs kill -9
+}
+
+# wg-quick requires bash 4+, but macOS ships with bash 3.2.
+# This wrapper forces it to run under Homebrew bash.
+function wg-quick() {
+  sudo /opt/homebrew/bin/bash /opt/homebrew/bin/wg-quick "$@"
 }
 
 # ============================================================================
@@ -105,6 +116,11 @@ if command -v atuin &> /dev/null; then
 fi
 
 # ============================================================================
+# FNM PROMPT
+# ============================================================================
+eval "$(fnm env --use-on-cd --shell zsh)"
+
+# ============================================================================
 # STARSHIP PROMPT
 # ============================================================================
 eval "$(starship init zsh)"
@@ -134,11 +150,19 @@ function sdk() {
 # ============================================================================
 # STARTUP
 # ============================================================================
-ff
+# fastfetch runs in .zprofile (login shells only) to avoid slowing down subshells
 
 # bun completions
-[ -s "/Users/georgepagarigan/.bun/_bun" ] && source "/Users/georgepagarigan/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
