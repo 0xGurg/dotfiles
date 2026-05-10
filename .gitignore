@@ -1,6 +1,6 @@
 .env
 
-# Sanity CLI auth (contains auth tokens)
+# Sanity CLI config (auto-generated telemetry/auth settings)
 .config/sanity/
 
 # Zsh history and cache (at $HOME level)
@@ -19,3 +19,12 @@ result-*
 
 # macOS
 .DS_Store
+
+# OpenCode generated lockfile
+.config/opencode/package-lock.json
+
+# WireGuard config (contains private keys)
+wg0.conf
+
+# fgj (third-party git forge tool — may contain tokens)
+.config/fgj/
