@@ -23,6 +23,9 @@ result-*
 # OpenCode generated lockfile
 .config/opencode/package-lock.json
 
+# OpenCode quota provider auth (env vars used instead, but plugin may regenerate this)
+.config/opencode/opencode-quota/opencode-go.json
+
 # WireGuard config (contains private keys)
 wg0.conf
 

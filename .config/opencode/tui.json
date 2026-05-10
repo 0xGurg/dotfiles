@@ -6,6 +6,7 @@
     "app_exit": "ctrl+c,q"
   },
   "plugin": [
-    "oh-my-opencode-slim"
+    "oh-my-opencode-slim",
+    "@slkiser/opencode-quota"
   ]
 }

@@ -3,7 +3,8 @@
   "model": "opencode-go/glm-5.1",
   "autoupdate": true,
   "plugin": [
-    "oh-my-opencode-slim"
+    "oh-my-opencode-slim",
+    "@slkiser/opencode-quota"
   ],
   "agent": {
     "build": {
