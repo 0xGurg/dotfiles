@@ -7,6 +7,7 @@ Personal configuration files for macOS, managed with GNU Stow.
 ```
 ~/dotfiles/
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
+├── .zprofile           # Login shell startup (fastfetch runs here)
 ├── Brewfile            # Homebrew packages and casks
 ├── .config/            # XDG config directory (stowed to ~/.config/)
 │   ├── starship/       # Starship prompt
@@ -173,6 +174,7 @@ Or run during initial setup (prompted automatically).
 - **XDG Base Directory**: Follows `~/.config` standard
 - **Stow-based**: Uses GNU Stow for symlink management
 - **Git-tracked**: All configs versioned for easy restoration
+- **Dual agent configs**: AI agents (Zero, Senku, reviewers) are defined in both `.config/agents/` (Claude Code) and `.config/opencode/agents/` (OpenCode). These are intentionally separate — each tool has its own format and capabilities.
 
 ## 📖 Detailed Documentation
 
