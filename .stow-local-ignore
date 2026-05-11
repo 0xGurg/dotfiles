@@ -19,3 +19,9 @@
 # Scripts directory (keep in repo, don't stow to $HOME)
 ^/scripts
 
+# Packages directory (keep in repo, don't stow to $HOME)
+^/packages
+
+# Decman directory (keep in repo, don't stow to $HOME)
+^/decman
+

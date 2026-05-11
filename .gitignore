@@ -1,5 +1,12 @@
 .env
 
+# Local/sensitive app data (Linux)
+.config/BraveSoftware/
+.config/dconf/
+.config/hypr/
+.config/pulse/
+.config/rclone/
+
 # Sanity CLI config (auto-generated telemetry/auth settings)
 .config/sanity/
 
@@ -31,5 +38,6 @@ wg0.conf
 
 # fgj (third-party git forge tool — may contain tokens)
 .config/fgj/
+
 # Sayang app (separate repo)
 sayang/
