@@ -20,7 +20,7 @@ export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
 
 # Load secrets from .env (gitignored)
-[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env" && export SANITY_AUTH_TOKEN
+[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env"
 
 # ============================================================================
 # ALIASES
@@ -49,26 +49,46 @@ alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
 alias lg="lazygit"
 
+# Wireguard
+alias wg="sudo wg"
+alias wgu="wg-quick up"
+alias wgd="wg-quick down"
+
 # ============================================================================
 # PKGUP - Declarative Package Manager (cross-platform)
 # ============================================================================
 pkgup() {
   if [[ "$OS" == "macos" ]]; then
-    brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    local cleanup_list
+    cleanup_list=$(brew bundle cleanup --file="$HOME/dotfiles/Brewfile" 2>/dev/null)
+    if [[ -n "$cleanup_list" ]]; then
+      echo "The following packages are not in Brewfile and would be removed:"
+      echo "$cleanup_list"
+      if read -q "REPLY?Proceed with cleanup? (y/N) "; then
+        echo ""
+        brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      else
+        echo ""
+        brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      fi
+    else
+      brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    fi
   elif [[ "$OS" == "linux" ]]; then
     local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
 
     sudo decman || return 1
 
-    pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
+    local PKGS=("${(@f)$(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")}")
+    [[ ${#PKGS[@]} -gt 0 ]] && pnpm add -g "${PKGS[@]}"
     pnpm update -g
 
     # Cleanup: remove globals not declared in pnpm.list
     local pkg
-    for pkg in $(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]'); do
-      grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
+    while IFS= read -r pkg; do
+      grep -qxF -- "$pkg" "$PNPM_LIST" 2>/dev/null \
         || pnpm remove -g "$pkg"
-    done
+    done < <(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]')
   fi
 }
 
@@ -98,6 +118,14 @@ killport() {
     fuser -k "$1"/tcp 2>/dev/null
   fi
 }
+
+# wg-quick requires bash 4+, but macOS ships with bash 3.2.
+# This wrapper forces it to run under Homebrew bash.
+if [[ "$OS" == "macos" ]]; then
+  function wg-quick() {
+    sudo /opt/homebrew/bin/bash /opt/homebrew/bin/wg-quick "$@"
+  }
+fi
 
 # ============================================================================
 # COMPLETIONS & PLUGINS
@@ -164,12 +192,19 @@ eval "$(zoxide init zsh)"
 # ============================================================================
 # STARTUP
 # ============================================================================
-ff
+# fastfetch runs in .zprofile (login shells only) to avoid slowing down subshells
 
-# pnpm
-export PNPM_HOME="/home/gurg/.local/share/pnpm"
+# pnpm (cross-platform)
+if [[ "$OS" == "macos" ]]; then
+  export PNPM_HOME="$HOME/Library/pnpm"
+else
+  export PNPM_HOME="$HOME/.local/share/pnpm"
+fi
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Added by Antigravity
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
