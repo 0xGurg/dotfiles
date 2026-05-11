@@ -31,3 +31,5 @@ wg0.conf
 
 # fgj (third-party git forge tool — may contain tokens)
 .config/fgj/
+# Sayang app (separate repo)
+sayang/
