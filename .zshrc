@@ -59,21 +59,36 @@ alias wgd="wg-quick down"
 # ============================================================================
 pkgup() {
   if [[ "$OS" == "macos" ]]; then
-    brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    local cleanup_list
+    cleanup_list=$(brew bundle cleanup --file="$HOME/dotfiles/Brewfile" 2>/dev/null)
+    if [[ -n "$cleanup_list" ]]; then
+      echo "The following packages are not in Brewfile and would be removed:"
+      echo "$cleanup_list"
+      if read -q "REPLY?Proceed with cleanup? (y/N) "; then
+        echo ""
+        brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      else
+        echo ""
+        brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      fi
+    else
+      brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    fi
   elif [[ "$OS" == "linux" ]]; then
     local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
 
     sudo decman || return 1
 
-    pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
+    local PKGS=("${(@f)$(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")}")
+    [[ ${#PKGS[@]} -gt 0 ]] && pnpm add -g "${PKGS[@]}"
     pnpm update -g
 
     # Cleanup: remove globals not declared in pnpm.list
     local pkg
-    for pkg in $(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]'); do
-      grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
+    while IFS= read -r pkg; do
+      grep -qxF -- "$pkg" "$PNPM_LIST" 2>/dev/null \
         || pnpm remove -g "$pkg"
-    done
+    done < <(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]')
   fi
 }
 
