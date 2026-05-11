@@ -1,5 +1,7 @@
 {
+  "packageManager": "pnpm@11.0.9",
   "dependencies": {
-    "@opencode-ai/plugin": "1.4.10"
+    "@opencode-ai/plugin": "1.14.40",
+    "@slkiser/opencode-quota": "^3.7.1"
   }
 }
