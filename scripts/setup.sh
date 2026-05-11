@@ -257,6 +257,101 @@ install_packages() {
 }
 
 # ============================================================================
+# SHELL (Arch only — macOS defaults to zsh since Catalina)
+# ============================================================================
+setup_shell() {
+  if [[ "$OS" != "arch" ]]; then
+    return 0
+  fi
+
+  print_status "Setting up default shell..."
+
+  local ZSH_PATH
+  ZSH_PATH="$(which zsh 2>/dev/null || echo '')"
+
+  if [[ -z "$ZSH_PATH" ]]; then
+    print_warning "zsh not found in PATH — skipping chsh (was it installed?)"
+    return 0
+  fi
+
+  if [[ "$SHELL" == "$ZSH_PATH" ]]; then
+    print_success "Default shell is already zsh ($ZSH_PATH)"
+    return 0
+  fi
+
+  # Ensure zsh is listed in /etc/shells (required for chsh to accept it)
+  if ! grep -qx "$ZSH_PATH" /etc/shells; then
+    print_status "Adding $ZSH_PATH to /etc/shells..."
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
+  fi
+
+  print_status "Changing default shell to zsh ($ZSH_PATH)..."
+  chsh -s "$ZSH_PATH"
+  print_success "Default shell set to zsh — takes effect on next login"
+}
+
+# ============================================================================
+# EARLY KMS — NVIDIA (Arch only)
+# ============================================================================
+setup_early_kms() {
+  if [[ "$OS" != "arch" ]]; then
+    return 0
+  fi
+
+  print_status "Configuring NVIDIA Early KMS..."
+
+  # ── mkinitcpio.conf ──────────────────────────────────────────────────────
+  local MKINIT="/etc/mkinitcpio.conf"
+
+  if grep -qP '^MODULES=\(.*nvidia.*\)' "$MKINIT"; then
+    print_success "NVIDIA modules already present in $MKINIT"
+  else
+    print_status "Adding NVIDIA modules to MODULES= in $MKINIT..."
+    # Handle both empty MODULES=() and MODULES=(existing items)
+    sudo sed -i \
+      's/^MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' \
+      "$MKINIT"
+    # Collapse any leading space if MODULES was previously empty: "(  nvidia" → "(nvidia"
+    sudo sed -i \
+      's/^MODULES=( /MODULES=(/' \
+      "$MKINIT"
+    print_success "NVIDIA modules added to $MKINIT"
+
+    print_status "Regenerating initramfs (mkinitcpio -P)..."
+    sudo mkinitcpio -P
+    print_success "Initramfs regenerated"
+  fi
+
+  # ── systemd-boot kernel parameter ────────────────────────────────────────
+  local ENTRIES_DIR="/boot/loader/entries"
+
+  if [[ ! -d "$ENTRIES_DIR" ]]; then
+    print_warning "systemd-boot entries directory not found at $ENTRIES_DIR — skipping kernel param"
+    return 0
+  fi
+
+  local PARAM="nvidia_drm.modeset=1"
+  local patched=0
+
+  for entry in "$ENTRIES_DIR"/*.conf; do
+    [[ -f "$entry" ]] || continue
+
+    if grep -q "$PARAM" "$entry"; then
+      print_success "$(basename "$entry"): $PARAM already set"
+    else
+      print_status "Adding $PARAM to $(basename "$entry")..."
+      sudo sed -i "s|^\(options\s.*\)$|\1 $PARAM|" "$entry"
+      print_success "$(basename "$entry"): $PARAM added"
+      ((patched++)) || true
+    fi
+  done
+
+  if [[ $patched -gt 0 ]]; then
+    print_warning "Kernel parameter change requires a reboot to take effect"
+  fi
+}
+
+# ============================================================================
 # AUTHENTICATION SETUP (Touch ID / Howdy)
 # ============================================================================
 setup_auth() {
@@ -290,12 +385,17 @@ setup_touchid() {
 
 setup_howdy() {
   if ! command -v howdy &> /dev/null; then
-    print_warning "Howdy (facial recognition for sudo) is declared in decman/source.py"
-    print_warning "Run 'sudo decman' to install it, then configure:"
-    echo "  1. Add your face: sudo howdy add"
-    echo "  2. Test: sudo howdy test"
-    echo "  3. Edit config: sudo howdy config"
-    echo "  PAM is configured in /etc/pam.d/ (refer to Howdy docs)"
+    print_warning "Howdy (facial recognition for sudo) is currently disabled."
+    print_warning "howdy-git is commented out in decman/source.py — blocked by a"
+    print_warning "python-dlib → CUDA build failure with GCC 16 / CUDA 13."
+    echo ""
+    echo "  To enable once the upstream build issue is resolved:"
+    echo "    1. Uncomment 'howdy-git' in decman/source.py"
+    echo "    2. Run: sudo decman"
+    echo "    3. Add your face:   sudo howdy add"
+    echo "    4. Test:            sudo howdy test"
+    echo "    5. Edit config:     sudo howdy config"
+    echo "    6. Configure PAM:   refer to https://github.com/boltgolt/howdy"
   else
     print_success "Howdy already installed"
   fi
@@ -312,6 +412,12 @@ post_install() {
     if command -v ufw &> /dev/null; then
       sudo systemctl enable --now ufw 2>/dev/null && print_success "UFW enabled" || true
     fi
+
+    echo ""
+    print_status "Secure Boot setup (run manually after setup completes):"
+    echo "  Step 1 — Generate keys : scripts/sbctl-setup.sh"
+    echo "  Step 2 — Reboot into BIOS, delete existing Secure Boot keys (enter Setup Mode)"
+    echo "  Step 3 — Enroll & sign  : scripts/sbctl-sign.sh"
   fi
 }
 
@@ -332,6 +438,8 @@ main() {
   setup_stow
   setup_symlinks
   install_packages
+  setup_shell
+  setup_early_kms
   setup_auth
   post_install
 
@@ -345,8 +453,12 @@ main() {
   if [[ "$OS" == "macos" ]]; then
     echo "  3. Try 'sudo ls' to test Touch ID authentication"
   elif [[ "$OS" == "arch" ]]; then
-    echo "  3. Log out and log back in with Hyprland"
-    echo "  4. Run Hyprland: Hyprland (from TTY) or select from display manager"
+    echo "  3. Log out and log back in — your default shell is now zsh"
+    echo "  4. Launch Hyprland: run 'Hyprland' from TTY or select from display manager"
+    echo "  5. Set up Secure Boot:"
+    echo "       scripts/sbctl-setup.sh          # generate keys"
+    echo "       → reboot into BIOS, clear Secure Boot keys (Setup Mode)"
+    echo "       scripts/sbctl-sign.sh           # enroll keys + sign EFI binaries"
   fi
   echo ""
   echo "To uninstall symlinks, run: cd ~/dotfiles && stow -D ."

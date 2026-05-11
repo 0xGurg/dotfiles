@@ -19,3 +19,15 @@ result-*
 
 # macOS
 .DS_Store
+
+# Browser profile data (contains cookies, sessions, login data)
+.config/BraveSoftware/
+
+# Rclone config (contains OAuth tokens)
+.config/rclone/rclone.conf
+
+# PulseAudio auth cookie
+.config/pulse/cookie
+
+# Dconf user settings (binary blob, may contain tokens)
+.config/dconf/user
