@@ -1,4 +1,4 @@
-theme = "Kanagawa wave"
+theme = "Kanagawa Wave"
 background-opacity = 0.90
 background-blur = true
 keybind = global:cmd+/=toggle_quick_terminal
