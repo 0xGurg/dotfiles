@@ -87,8 +87,8 @@ decman.pacman.packages |= {
     "zsh-syntax-highlighting",
     "ntfs-3g",
     "rclone",
-"cifs-utils",
-    "btrfs-progs"
+    "cifs-utils",
+    "btrfs-progs",
 }
 
 # =============================================================================

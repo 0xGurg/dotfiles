@@ -1,6 +1,6 @@
 tap "nikitabobko/tap"
 tap "romaintb/fgj", "https://codeberg.org/romaintb/homebrew-fgj.git"
-tap "0xGurg/distillery"
+tap "0xGurg/distillery", "https://github.com/0xGurg/distillery.git"
 
 brew "FelixKratz/formulae/sketchybar"
 brew "supabase/tap/supabase"
@@ -52,3 +52,4 @@ cask "whatsapp"
 cask "caffeine"
 cask "blitz-gg"
 cask "antigravity"
+cask "cursor-cli"
