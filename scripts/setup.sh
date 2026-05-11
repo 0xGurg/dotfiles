@@ -192,6 +192,7 @@ setup_symlinks() {
     [[ "$rel" == .git/* ]] && continue
     [[ "$rel" == README* ]] && continue
     [[ "$rel" == Brewfile ]] && continue
+    [[ "$rel" == decman/* ]] && continue
 
     local target="$HOME/$rel"
     backup_existing "$target" "$rel"
@@ -224,7 +225,7 @@ install_packages() {
     macos)
       print_status "Installing packages via Homebrew..."
       brew update
-      brew bundle install --verbose --cleanup --file="$DOTFILES_DIR/Brewfile"
+      brew bundle install --verbose --file="$DOTFILES_DIR/Brewfile"
       brew upgrade
       print_success "All packages installed"
       ;;
