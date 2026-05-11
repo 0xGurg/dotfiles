@@ -192,6 +192,7 @@ setup_symlinks() {
     [[ "$rel" == .git/* ]] && continue
     [[ "$rel" == README* ]] && continue
     [[ "$rel" == Brewfile ]] && continue
+    [[ "$rel" == decman/* ]] && continue
 
     local target="$HOME/$rel"
     backup_existing "$target" "$rel"
@@ -224,7 +225,7 @@ install_packages() {
     macos)
       print_status "Installing packages via Homebrew..."
       brew update
-      brew bundle install --verbose --cleanup --file="$DOTFILES_DIR/Brewfile"
+      brew bundle install --verbose --file="$DOTFILES_DIR/Brewfile"
       brew upgrade
       print_success "All packages installed"
       ;;
@@ -422,6 +423,50 @@ post_install() {
 }
 
 # ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+setup_env() {
+  print_status "Setting up environment variables..."
+
+  if [[ -f "$DOTFILES_DIR/.env" ]]; then
+    print_success ".env already exists"
+    return 0
+  fi
+
+  if [[ ! -f "$DOTFILES_DIR/.env.example" ]]; then
+    print_warning "No .env.example found, skipping"
+    return 0
+  fi
+
+  cp "$DOTFILES_DIR/.env.example" "$DOTFILES_DIR/.env"
+  print_success "Created .env from .env.example"
+  print_warning "Edit ~/dotfiles/.env and fill in your secrets before using OpenCode"
+}
+
+# ============================================================================
+# OPENCODE PLUGINS
+# ============================================================================
+setup_opencode() {
+  print_status "Installing OpenCode plugins..."
+
+  local opencode_dir="$DOTFILES_DIR/.config/opencode"
+  if [[ ! -f "$opencode_dir/package.json" ]]; then
+    print_warning "No OpenCode package.json found, skipping"
+    return 0
+  fi
+
+  if ! command -v pnpm &>/dev/null; then
+    print_warning "pnpm not found, skipping OpenCode plugin install"
+    print_warning "Install pnpm and run: cd ~/.config/opencode && pnpm install"
+    return 0
+  fi
+
+  (cd "$opencode_dir" && pnpm install --frozen-lockfile 2>/dev/null) \
+    && print_success "OpenCode plugins installed" \
+    || print_warning "OpenCode plugin install failed — run manually: cd ~/.config/opencode && pnpm install"
+}
+
+# ============================================================================
 # MAIN
 # ============================================================================
 main() {
@@ -441,6 +486,8 @@ main() {
   setup_shell
   setup_early_kms
   setup_auth
+  setup_env
+  setup_opencode
   post_install
 
   echo ""
