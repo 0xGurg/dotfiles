@@ -1,6 +1,13 @@
 .env
 
-# Sanity CLI auth (contains auth tokens)
+# Local/sensitive app data (Linux)
+.config/BraveSoftware/
+.config/dconf/
+.config/hypr/
+.config/pulse/
+.config/rclone/
+
+# Sanity CLI config (auto-generated telemetry/auth settings)
 .config/sanity/
 
 # Zsh history and cache (at $HOME level)
@@ -20,14 +27,17 @@ result-*
 # macOS
 .DS_Store
 
-# Browser profile data (contains cookies, sessions, login data)
-.config/BraveSoftware/
+# OpenCode generated lockfile
+.config/opencode/package-lock.json
 
-# Rclone config (contains OAuth tokens)
-.config/rclone/rclone.conf
+# OpenCode quota provider auth (env vars used instead, but plugin may regenerate this)
+.config/opencode/opencode-quota/opencode-go.json
 
-# PulseAudio auth cookie
-.config/pulse/cookie
+# WireGuard config (contains private keys)
+wg0.conf
 
-# Dconf user settings (binary blob, may contain tokens)
-.config/dconf/user
+# fgj (third-party git forge tool — may contain tokens)
+.config/fgj/
+
+# Sayang app (separate repo)
+sayang/

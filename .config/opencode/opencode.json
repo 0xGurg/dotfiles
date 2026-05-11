@@ -1,0 +1,35 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/glm-5.1",
+  "autoupdate": true,
+  "plugin": [
+    "oh-my-opencode-slim",
+    "@slkiser/opencode-quota"
+  ],
+  "agent": {
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    }
+  },
+  "permission": {
+    "codesearch": "allow",
+    "websearch": "allow"
+  },
+  "lsp": true,
+  "mcp": {
+    "brave-search": {
+      "type": "local",
+      "command": ["brave-search-mcp-server", "--brave-api-key", "{env:BRAVE_API_KEY}"],
+      "enabled": true
+    }
+  }
+}
