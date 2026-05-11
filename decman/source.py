@@ -85,6 +85,10 @@ decman.pacman.packages |= {
     "jq",
     "zsh-autosuggestions",
     "zsh-syntax-highlighting",
+    "ntfs-3g",
+    "rclone",
+"cifs-utils",
+    "btrfs-progs"
 }
 
 # =============================================================================
@@ -112,6 +116,7 @@ decman.pacman.packages |= {
     "fnm",
     "pnpm",
     "cmake",
+    "opencode",
 }
 
 # =============================================================================

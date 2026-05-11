@@ -1,32 +1,38 @@
 # Dotfiles
 
-Personal configuration files for macOS, managed with GNU Stow.
+Personal configuration files for macOS and Arch Linux, managed with GNU Stow.
 
 ## 📁 Structure
 
 ```
 ~/dotfiles/
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
-├── Brewfile            # Homebrew packages and casks
+├── Brewfile            # Homebrew packages (macOS)
+├── decman/             # Arch Linux package declarations (pacman/AUR/flatpak)
+│   └── source.py
+├── packages/           # Cross-platform package lists
+│   └── pnpm.list       # Global pnpm packages
 ├── .config/            # XDG config directory (stowed to ~/.config/)
 │   ├── starship/       # Starship prompt
 │   │   └── starship.toml
 │   ├── git/            # Git configuration
 │   │   └── config
-│   ├── aerospace/      # Window manager
+│   ├── hypr/           # Hyprland window manager (Arch)
+│   ├── aerospace/      # Window manager (macOS)
 │   ├── atuin/          # Shell history database
 │   ├── btop/           # System monitor
 │   ├── fastfetch/      # System info
 │   ├── ghostty/        # Terminal emulator + themes
 │   ├── nvim/           # Neovim editor (see .config/nvim/README.md)
 │   ├── opencode/       # OpenCode config
-│   ├── raycast/        # Raycast launcher
+│   ├── raycast/        # Raycast launcher (macOS)
 │   └── sketchybar/     # macOS status bar
-├── scripts/            # Setup and utility scripts
-│   ├── setup.sh        # Bootstrap script
-│   ├── nvhc.sh         # Cursor + Neovim split workflow
-│   └── enable-touchid-sudo.sh
-└── README.md           # This file
+└── scripts/            # Setup and utility scripts
+    ├── setup.sh        # Bootstrap script (macOS + Arch)
+    ├── sbctl-setup.sh  # Secure Boot — Part 1: generate keys (Arch)
+    ├── sbctl-sign.sh   # Secure Boot — Part 2: enroll + sign (Arch)
+    ├── nvhc.sh         # Cursor + Neovim split workflow (macOS)
+    └── enable-touchid-sudo.sh
 ```
 
 ## 🚀 Quick Start
@@ -43,12 +49,15 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
 
-This will:
-- Install Homebrew (if not installed)
-- Install GNU Stow
-- Create symlinks using stow: `cd ~/dotfiles && stow .`
-- Install all packages from Brewfile
-- Optionally enable Touch ID for sudo commands
+The script auto-detects your OS and handles everything:
+
+| Step | macOS | Arch Linux |
+|------|-------|------------|
+| Package manager | Homebrew | decman (pacman + AUR + flatpak) |
+| Symlinks | `stow .` | `stow .` (macOS-only configs ignored) |
+| Default shell | — (zsh is default) | `chsh` to zsh |
+| NVIDIA Early KMS | — | `mkinitcpio.conf` + systemd-boot param |
+| Auth | Touch ID for sudo | Howdy (facial recognition) |
 
 ### 3. Restart Terminal
 ```bash
@@ -56,20 +65,48 @@ source ~/.zshrc
 # or just open a new terminal
 ```
 
+---
+
+## 🔒 Arch Linux — Secure Boot Setup
+
+Secure Boot requires a manual BIOS step so it is handled by two separate scripts, run **after** `setup.sh` completes.
+
+### Part 1 — Generate keys (before BIOS)
+```bash
+./scripts/sbctl-setup.sh
+```
+This runs `sbctl status`, creates your signing keys, then prompts you to reboot.
+
+### BIOS step (manual)
+1. Enter your BIOS/UEFI firmware (Del, F2, or F12 on boot)
+2. Navigate to **Secure Boot** settings
+3. **Delete / clear all existing Secure Boot keys** — this puts the firmware into *Setup Mode*
+4. Save and boot back into Arch Linux
+
+### Part 2 — Enroll keys & sign EFI binaries (after BIOS)
+```bash
+./scripts/sbctl-sign.sh
+```
+This enrolls your keys (including Microsoft keys with `-m` for hardware compatibility), discovers all unsigned EFI binaries via `sbctl verify`, signs each one with `sbctl sign -s` (the `-s` flag saves paths for automatic re-signing on kernel updates), and reboots to activate Secure Boot.
+
 ## 🔧 Tools
 
-| Tool | Purpose |
-|------|---------|
-| **Neovim** | Code editor (TypeScript/JS focus) |
-| **Zsh** | Shell with autosuggestions & syntax highlighting |
-| **Starship** | Fast, customizable prompt |
-| **Ghostty** | GPU-accelerated terminal emulator |
-| **AeroSpace** | Window tiling manager |
-| **SketchyBar** | Custom macOS status bar |
-| **Lazygit** | Terminal UI for git |
-| **Zoxide** | Smart directory jumper (`z`, `zi`) |
-| **Atuin** | Shell history database with sync |
-| **Ollama** | Local LLM runner |
+| Tool | Purpose | Platform |
+|------|---------|----------|
+| **Neovim** | Code editor (TypeScript/JS focus) | Both |
+| **Zsh** | Shell with autosuggestions & syntax highlighting | Both |
+| **Starship** | Fast, customizable prompt | Both |
+| **Ghostty** | GPU-accelerated terminal emulator | Both |
+| **Lazygit** | Terminal UI for git | Both |
+| **Zoxide** | Smart directory jumper (`z`, `zi`) | Both |
+| **Atuin** | Shell history database with sync | Both |
+| **Ollama** | Local LLM runner | Both |
+| **AeroSpace** | Window tiling manager | macOS |
+| **SketchyBar** | Custom macOS status bar | macOS |
+| **Hyprland** | Wayland compositor / tiling WM | Arch |
+| **decman** | Declarative package manager (pacman/AUR/flatpak) | Arch |
+| **UFW** | Firewall | Arch |
+| **sbctl** | Secure Boot key management | Arch |
 
 ## 🔗 Symlink Management with Stow
 
@@ -95,16 +132,17 @@ stow -R .
 
 ### Update Everything
 ```bash
-bbiu
+pkgup
 ```
 
-This alias runs:
-```bash
-brew update && brew bundle install --cleanup --file=~/dotfiles/Brewfile && brew upgrade
-```
+On macOS this runs `brew update && brew bundle install && brew upgrade`.
+On Arch it runs `decman` (pacman + AUR + flatpak) followed by a `pnpm` global update.
 
-### Add New Package
-Edit `Brewfile` and run `bbiu`.
+### macOS — Add New Package
+Edit `Brewfile` and run `pkgup`.
+
+### Arch — Add New Package
+Edit `decman/source.py` (categorised into `pacman`, `aur`, `flatpak`) and run `pkgup`.
 
 ## 🎨 Customization
 
@@ -130,7 +168,7 @@ Edit `.config/git/config` for user settings.
 
 | Alias | Command |
 |-------|---------|
-| `bbiu` | Update all brew packages |
+| `pkgup` | Update all packages (brew on macOS, decman + pnpm on Arch) |
 | `sz` | Reload shell config |
 | `nv` | Open neovim |
 | `nvh` | Open neovim in current dir |
@@ -157,7 +195,7 @@ aerospace reload-config
 # Restart or :Lazy sync
 ```
 
-## 🔐 Touch ID for sudo
+## 🔐 Touch ID for sudo (macOS)
 
 Enable fingerprint authentication instead of password prompts in terminals:
 
@@ -169,10 +207,11 @@ Or run during initial setup (prompted automatically).
 
 ## 📝 Notes
 
-- **Tested on**: Apple Silicon Macs (M1/M2/M4)
+- **Tested on**: Apple Silicon Macs (M1/M2/M4) and Arch Linux (Intel + NVIDIA)
 - **XDG Base Directory**: Follows `~/.config` standard
 - **Stow-based**: Uses GNU Stow for symlink management
 - **Git-tracked**: All configs versioned for easy restoration
+- **macOS-only configs** (`aerospace`, `sketchybar`, `raycast`, `Brewfile`) are automatically ignored by stow on Arch Linux
 
 ## 📖 Detailed Documentation
 
