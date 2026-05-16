@@ -142,6 +142,23 @@ Edit `Brewfile` and run `pkgup`.
 ### Arch — Add New Package
 Edit `bigkis/system.toml` and run `pkgup`.
 
+### Arch — Migrating an Existing Box Into bigkis
+On a **fresh Arch install**, just run `setup.sh` — it applies `system.toml` as-is.
+
+On a **long-lived Arch box** that already has packages installed outside bigkis,
+seed a starter config from the current system once before adopting bigkis:
+
+```bash
+bigkis import > ~/.config/bigkis/system.toml
+# Review/prune the generated file, then commit it to dotfiles.
+```
+
+After that, the normal `pkgup` flow takes over. `bigkis import` is **not** part of
+the fresh-install bootstrap — it's a one-time seed for migration.
+
+To detect packages installed ad-hoc later (drift), use `bigkis status` (which
+`setup.sh` already runs as a post-flight check).
+
 ## 🎨 Customization
 
 ### Shell Configuration
