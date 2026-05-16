@@ -270,12 +270,31 @@ install_packages() {
         print_warning "bigkis not found — skipping package installation"
         print_warning "Install bigkis and yay, then run: sudo bigkis apply"
       else
-        print_status "Installing packages with bigkis..."
-        # --config is a GLOBAL flag in bigkis, so it must come before the
-        # `apply` subcommand. --yes skips the confirmation prompt during
+        local BIGKIS_CFG="$HOME/.config/bigkis/system.toml"
+        # --config is a GLOBAL flag in bigkis, so it must come before any
+        # subcommand. --yes on apply skips the confirmation prompt during
         # unattended bootstrap (matches old decman --noconfirm behaviour).
-        sudo env "PATH=$PATH" bigkis --config "$HOME/.config/bigkis/system.toml" apply --yes
+
+        # Preflight: fail fast with actionable errors instead of mid-apply
+        # blowups (missing yay, unparseable config, no network, etc).
+        print_status "Running bigkis doctor preflight checks..."
+        if ! sudo env "PATH=$PATH" bigkis --config "$BIGKIS_CFG" doctor; then
+          print_error "bigkis doctor failed — fix the issues above before re-running"
+          return 1
+        fi
+
+        print_status "Installing packages with bigkis..."
+        sudo env "PATH=$PATH" bigkis --config "$BIGKIS_CFG" apply --yes
         print_success "All packages installed"
+
+        # Post-flight: confirm convergence. Non-fatal because some drift is
+        # expected on first run (e.g. an AUR build that failed gets surfaced
+        # here without forcing the whole setup to abort).
+        print_status "Verifying system matches declaration..."
+        if ! sudo env "PATH=$PATH" bigkis --config "$BIGKIS_CFG" status; then
+          print_warning "System still drifted after apply — see above"
+          print_warning "Re-run 'pkgup' once the underlying issue is fixed"
+        fi
       fi
       ;;
     *)
