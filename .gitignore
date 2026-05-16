@@ -1,4 +1,5 @@
 .env
+.config/fgj/config.yaml
 
 # Local/sensitive app data
 .config/BraveSoftware/
@@ -6,6 +7,9 @@
 .config/hypr/
 .config/pulse/
 .config/rclone/
+
+# OpenCode quota data
+.config/opencode/opencode-quota/opencode-go.json
 
 # Sanity CLI auth (contains auth tokens)
 .config/sanity/
