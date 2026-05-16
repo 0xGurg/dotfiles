@@ -8,11 +8,9 @@ Personal configuration files for macOS and Arch Linux, managed with GNU Stow.
 ~/dotfiles/
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
 ├── Brewfile            # Homebrew packages (macOS)
-├── decman/             # Arch Linux package declarations (pacman/AUR/flatpak)
-│   └── source.py
-├── packages/           # Cross-platform package lists
-│   └── pnpm.list       # Global pnpm packages
 ├── .config/            # XDG config directory (stowed to ~/.config/)
+│   ├── bigkis/         # Arch Linux package declarations (pacman/AUR/flatpak/node)
+│   │   └── system.toml
 │   ├── starship/       # Starship prompt
 │   │   └── starship.toml
 │   ├── git/            # Git configuration
@@ -53,7 +51,7 @@ The script auto-detects your OS and handles everything:
 
 | Step | macOS | Arch Linux |
 |------|-------|------------|
-| Package manager | Homebrew | decman (pacman + AUR + flatpak) |
+| Package manager | Homebrew | bigkis (pacman + AUR + flatpak + node) |
 | Symlinks | `stow .` | `stow .` (macOS-only configs ignored) |
 | Default shell | — (zsh is default) | `chsh` to zsh |
 | NVIDIA Early KMS | — | `mkinitcpio.conf` + systemd-boot param |
@@ -104,7 +102,7 @@ This enrolls your keys (including Microsoft keys with `-m` for hardware compatib
 | **AeroSpace** | Window tiling manager | macOS |
 | **SketchyBar** | Custom macOS status bar | macOS |
 | **Hyprland** | Wayland compositor / tiling WM | Arch |
-| **decman** | Declarative package manager (pacman/AUR/flatpak) | Arch |
+| **bigkis** | Declarative package manager (pacman/AUR/flatpak/node) | Arch |
 | **UFW** | Firewall | Arch |
 | **sbctl** | Secure Boot key management | Arch |
 
@@ -136,13 +134,13 @@ pkgup
 ```
 
 On macOS this runs `brew update && brew bundle install && brew upgrade`.
-On Arch it runs `decman` (pacman + AUR + flatpak) followed by a `pnpm` global update.
+On Arch it runs `bigkis apply` (pacman + AUR + flatpak + node).
 
 ### macOS — Add New Package
 Edit `Brewfile` and run `pkgup`.
 
 ### Arch — Add New Package
-Edit `decman/source.py` (categorised into `pacman`, `aur`, `flatpak`) and run `pkgup`.
+Edit `bigkis/system.toml` and run `pkgup`.
 
 ## 🎨 Customization
 
@@ -168,7 +166,7 @@ Edit `.config/git/config` for user settings.
 
 | Alias | Command |
 |-------|---------|
-| `pkgup` | Update all packages (brew on macOS, decman + pnpm on Arch) |
+| `pkgup` | Update all packages (brew on macOS, bigkis on Arch) |
 | `sz` | Reload shell config |
 | `nv` | Open neovim |
 | `nvh` | Open neovim in current dir |

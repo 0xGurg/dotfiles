@@ -50,25 +50,13 @@ alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bol
 alias lg="lazygit"
 
 # ============================================================================
-# PKGUP - Declarative Package Manager (cross-platform)
+# PKGUP - Declarative Package Manager (macOS: Homebrew, Arch: bigkis)
 # ============================================================================
 pkgup() {
   if [[ "$OS" == "macos" ]]; then
     brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
   elif [[ "$OS" == "linux" ]]; then
-    local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
-
-    sudo decman || return 1
-
-    pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")
-    pnpm update -g
-
-    # Cleanup: remove globals not declared in pnpm.list
-    local pkg
-    for pkg in $(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]'); do
-      grep -qx "$pkg" <(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST") \
-        || pnpm remove -g "$pkg"
-    done
+    sudo env "PATH=$PATH" bigkis apply --config "$HOME/.config/bigkis/system.toml" || return 1
   fi
 }
 

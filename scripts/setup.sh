@@ -2,12 +2,13 @@
 # ============================================================================
 # Dotfiles Setup Script
 # Run this after cloning dotfiles repo to set up symlinks and install packages
-# Supports: macOS (Homebrew) and Arch Linux (pacman + decman)
+# Supports: macOS (Homebrew) and Arch Linux (pacman + AUR + flatpak via bigkis)
 # ============================================================================
 
 set -e
 
 DOTFILES_DIR="$HOME/dotfiles"
+export PATH="$HOME/.local/bin:$PATH"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -88,29 +89,40 @@ setup_multilib() {
 }
 
 # ============================================================================
-# DECMAN (Arch only)
+# BIGKIS (Arch only)
 # ============================================================================
-setup_decman() {
+setup_bigkis() {
   if [[ "$OS" != "arch" ]]; then
     return 0
   fi
 
-  print_status "Setting up decman..."
+  # Install AUR helper (required by bigkis for AUR plugin)
+  if command -v yay &> /dev/null; then
+    print_success "yay already installed"
+  else
+    print_status "Installing yay (AUR helper)..."
+    sudo pacman -S --needed --noconfirm base-devel git
+    if git clone https://aur.archlinux.org/yay.git /tmp/yay 2>/dev/null; then
+      (cd /tmp/yay && makepkg -si --noconfirm)
+      rm -rf /tmp/yay
+      print_success "yay installed"
+    else
+      rm -rf /tmp/yay
+      print_warning "Could not reach AUR to build yay (network/TLS error)"
+      print_warning "Install yay manually later, then run: sudo bigkis apply"
+    fi
+  fi
 
-  if command -v decman &> /dev/null; then
-    print_success "decman already installed"
+  # Install bigkis
+  if command -v bigkis &> /dev/null; then
+    print_success "bigkis already installed"
     return 0
   fi
 
-  print_status "Installing base-devel and git (required for building AUR packages)..."
-  sudo pacman -S --needed base-devel git
+  print_status "Installing bigkis..."
+  curl -fsSL https://codeberg.org/gurg/bigkis/raw/branch/main/install.sh | sh
 
-  print_status "Building decman from AUR..."
-  git clone https://aur.archlinux.org/decman.git /tmp/decman
-  (cd /tmp/decman && makepkg -si --noconfirm)
-  rm -rf /tmp/decman
-
-  print_success "decman installed"
+  print_success "bigkis installed"
 }
 
 # ============================================================================
@@ -188,7 +200,6 @@ setup_symlinks() {
 
     # Skip paths that shouldn't be stowed
     [[ "$rel" == scripts/* ]] && continue
-    [[ "$rel" == packages/* ]] && continue
     [[ "$rel" == .git/* ]] && continue
     [[ "$rel" == README* ]] && continue
     [[ "$rel" == Brewfile ]] && continue
@@ -229,25 +240,14 @@ install_packages() {
       print_success "All packages installed"
       ;;
     arch)
-      print_status "Installing native packages with decman..."
-      sudo decman --source "$DOTFILES_DIR/decman/source.py" --skip aur --skip flatpak
-      print_success "Native packages installed"
-
-      print_status "Installing flatpak apps with decman..."
-      sudo decman --skip aur
-      print_success "Flatpak apps installed"
-
-      print_status "Building AUR packages with decman..."
-      sudo decman
-      print_success "AUR packages installed"
-
-      if [[ -f "$DOTFILES_DIR/packages/pnpm.list" ]]; then
-        print_status "Installing global pnpm packages..."
-        pnpm add -g $(sed -n '/^[^#[:space:]]/p' "$DOTFILES_DIR/packages/pnpm.list")
-        print_success "Global pnpm packages installed"
+      if ! command -v bigkis &> /dev/null; then
+        print_warning "bigkis not found — skipping package installation"
+        print_warning "Install bigkis and yay, then run: sudo bigkis apply"
+      else
+        print_status "Installing packages with bigkis..."
+        sudo env "PATH=$PATH" bigkis apply --config "$HOME/.config/bigkis/system.toml"
+        print_success "All packages installed"
       fi
-
-      print_success "All packages installed"
       ;;
     *)
       print_warning "Unknown package manager for this OS"
@@ -386,12 +386,12 @@ setup_touchid() {
 setup_howdy() {
   if ! command -v howdy &> /dev/null; then
     print_warning "Howdy (facial recognition for sudo) is currently disabled."
-    print_warning "howdy-git is commented out in decman/source.py — blocked by a"
+    print_warning "howdy-git is commented out in bigkis/system.toml — blocked by a"
     print_warning "python-dlib → CUDA build failure with GCC 16 / CUDA 13."
     echo ""
     echo "  To enable once the upstream build issue is resolved:"
-    echo "    1. Uncomment 'howdy-git' in decman/source.py"
-    echo "    2. Run: sudo decman"
+    echo "    1. Uncomment 'howdy-git' in bigkis/system.toml"
+    echo "    2. Run: sudo bigkis apply --config ~/.config/bigkis/system.toml"
     echo "    3. Add your face:   sudo howdy add"
     echo "    4. Test:            sudo howdy test"
     echo "    5. Edit config:     sudo howdy config"
@@ -434,7 +434,7 @@ main() {
   detect_os
   setup_homebrew
   setup_multilib
-  setup_decman
+  setup_bigkis
   setup_stow
   setup_symlinks
   install_packages
