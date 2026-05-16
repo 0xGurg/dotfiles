@@ -16,6 +16,9 @@
 .+~
 \#.*\#
 
+# Template files (rendered by inject-secrets.sh, don't stow to $HOME)
+\.tmpl$
+
 # Scripts directory (keep in repo, don't stow to $HOME)
 ^/scripts
 

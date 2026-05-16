@@ -98,6 +98,7 @@ packages = [
   "ollama",
   "wireguard-tools",
   "bitwarden",
+  "bitwarden-cli",
   "flatpak",
   "steam",
 ]
