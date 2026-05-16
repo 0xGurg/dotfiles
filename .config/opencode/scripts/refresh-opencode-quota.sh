@@ -195,8 +195,24 @@ print(json.dumps(data, indent=2))
   ok "Updated $CONFIG_FILE"
 }
 
+# --- Export env vars from config file ---
+# The opencode-quota plugin checks env vars first and short-circuits
+# if only one is set. We export both from opencode-go.json so the
+# plugin always finds a complete config via env vars.
+export_env_from_config() {
+  if [[ -f "$CONFIG_FILE" ]]; then
+    local wsid acookie
+    wsid=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('workspaceId',''))" 2>/dev/null || echo "")
+    acookie=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('authCookie',''))" 2>/dev/null || echo "")
+    [[ -n "$wsid" ]] && export OPENCODE_GO_WORKSPACE_ID="$wsid"
+    [[ -n "$acookie" ]] && export OPENCODE_GO_AUTH_COOKIE="$acookie"
+  fi
+}
+
 # --- Show quota ---
 show_quota() {
+  export_env_from_config
+
   local npx_cmd="npx @slkiser/opencode-quota show --provider opencode-go"
   if command -v opencode-quota &>/dev/null; then
     npx_cmd="opencode-quota show --provider opencode-go"
