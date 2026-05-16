@@ -126,5 +126,14 @@ ignored = []
 # =============================================================================
 # NODE — Global pnpm packages
 # =============================================================================
+# TODO: re-enable once two bigkis bugs are fixed:
+#   1. node plugin runs pnpm as root instead of dropping to $SUDO_USER (the
+#      AUR plugin already does this via resolveHelperUser()).
+#   2. fresh-install bootstrap has no PNPM_HOME because `pnpm setup` was
+#      never run — bigkis should detect this and either run pnpm setup
+#      itself or surface a clear actionable error.
+# In the meantime, install global node packages manually after bootstrap:
+#   pnpm setup && exec $SHELL
+#   pnpm add -g supabase
 [node]
-packages = ["supabase"]
+packages = []
