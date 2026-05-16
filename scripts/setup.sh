@@ -271,7 +271,10 @@ install_packages() {
         print_warning "Install bigkis and yay, then run: sudo bigkis apply"
       else
         print_status "Installing packages with bigkis..."
-        sudo env "PATH=$PATH" bigkis apply --config "$HOME/.config/bigkis/system.toml"
+        # --config is a GLOBAL flag in bigkis, so it must come before the
+        # `apply` subcommand. --yes skips the confirmation prompt during
+        # unattended bootstrap (matches old decman --noconfirm behaviour).
+        sudo env "PATH=$PATH" bigkis --config "$HOME/.config/bigkis/system.toml" apply --yes
         print_success "All packages installed"
       fi
       ;;
