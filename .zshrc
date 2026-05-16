@@ -56,7 +56,7 @@ pkgup() {
   if [[ "$OS" == "macos" ]]; then
     brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
   elif [[ "$OS" == "linux" ]]; then
-    sudo env "PATH=$PATH" bigkis apply --config "$HOME/.config/bigkis/system.toml" || return 1
+    sudo env "PATH=$PATH" bigkis --config "$HOME/.config/bigkis/system.toml" apply || return 1
   fi
 }
 
