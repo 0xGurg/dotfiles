@@ -25,3 +25,6 @@
 # Decman directory (keep in repo, don't stow to $HOME)
 ^/decman
 
+# macOS system files
+\.DS_Store
+

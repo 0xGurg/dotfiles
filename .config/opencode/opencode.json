@@ -24,12 +24,5 @@
     "codesearch": "allow",
     "websearch": "allow"
   },
-  "lsp": true,
-  "mcp": {
-    "brave-search": {
-      "type": "local",
-      "command": ["brave-search-mcp-server", "--brave-api-key", "{env:BRAVE_API_KEY}"],
-      "enabled": true
-    }
-  }
+  "lsp": true
 }
