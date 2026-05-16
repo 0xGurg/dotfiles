@@ -44,6 +44,9 @@ alias nv="nvim"
 alias nvh="nvim ."
 [[ "$OS" == "macos" ]] && alias nvhc="$HOME/dotfiles/scripts/nvhc.sh"
 
+# Secrets
+alias ssh-sync="python3 $HOME/dotfiles/scripts/inject-secrets.py"
+
 # Git
 alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"

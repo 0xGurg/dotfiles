@@ -25,6 +25,8 @@ brew "switchaudio-osx"
 brew "wireguard-tools"
 brew "supabase/tap/supabase"
 brew "pnpm"
+brew "bitwarden-cli"
+brew "bitwarden-cli"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
