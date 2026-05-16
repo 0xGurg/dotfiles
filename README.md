@@ -18,6 +18,7 @@ Personal configuration files for macOS and Arch Linux, managed with GNU Stow.
 │   │   └── starship.toml
 │   ├── git/            # Git configuration
 │   │   └── config
+│   ├── hypr/           # Hyprland window manager (Arch)
 │   ├── aerospace/      # Window manager (macOS)
 │   ├── atuin/          # Shell history database
 │   ├── btop/           # System monitor
@@ -104,6 +105,7 @@ This enrolls your keys (including Microsoft keys with `-m` for hardware compatib
 | **OpenCode** | AI coding assistant (shared OpenCode Go account) | Both |
 | **AeroSpace** | Window tiling manager | macOS |
 | **SketchyBar** | Custom macOS status bar | macOS |
+| **Hyprland** | Wayland compositor / tiling WM | Arch |
 | **decman** | Declarative package manager (pacman/AUR/flatpak) | Arch |
 | **UFW** | Firewall | Arch |
 | **sbctl** | Secure Boot key management | Arch |
