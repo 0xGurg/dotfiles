@@ -154,10 +154,15 @@ eval "$(zoxide init zsh)"
 # ============================================================================
 ff
 
-# pnpm
-export PNPM_HOME="/home/gurg/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
+# ============================================================================
+# PNPM (Linux only — macOS uses Homebrew for global node tools)
+# ============================================================================
+# Replaces what `pnpm setup` would auto-write so the dotfile stays portable
+# across machines/usernames instead of hardcoding /home/<user>/...
+if [[ "$OS" == "linux" ]]; then
+  export PNPM_HOME="$HOME/.local/share/pnpm"
+  case ":$PATH:" in
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
+  esac
+fi
