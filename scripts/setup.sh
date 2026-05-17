@@ -63,6 +63,8 @@ source "$SETUP_DIR/pnpm.sh"
 source "$SETUP_DIR/shell.sh"
 source "$SETUP_DIR/nvidia.sh"
 source "$SETUP_DIR/auth.sh"
+source "$SETUP_DIR/env.sh"
+source "$SETUP_DIR/opencode.sh"
 source "$SETUP_DIR/post-install.sh"
 
 # ============================================================================
@@ -87,6 +89,8 @@ main() {
   setup_shell
   setup_early_kms
   setup_auth
+  setup_env
+  setup_opencode
   post_install
 
   echo ""

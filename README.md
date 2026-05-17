@@ -7,6 +7,7 @@ Personal configuration files for macOS and Arch Linux, managed with GNU Stow.
 ```
 ~/dotfiles/
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
+├── .zprofile           # Login shell startup (fastfetch runs here)
 ├── Brewfile            # Homebrew packages (macOS)
 ├── .config/            # XDG config directory (stowed to ~/.config/)
 │   ├── bigkis/         # Arch Linux package declarations (pacman/AUR/flatpak/node)
@@ -99,6 +100,7 @@ This enrolls your keys (including Microsoft keys with `-m` for hardware compatib
 | **Zoxide** | Smart directory jumper (`z`, `zi`) | Both |
 | **Atuin** | Shell history database with sync | Both |
 | **Ollama** | Local LLM runner | Both |
+| **OpenCode** | AI coding assistant (shared OpenCode Go account) | Both |
 | **AeroSpace** | Window tiling manager | macOS |
 | **SketchyBar** | Custom macOS status bar | macOS |
 | **Hyprland** | Wayland compositor / tiling WM | Arch |
@@ -220,12 +222,55 @@ Enable fingerprint authentication instead of password prompts in terminals:
 
 Or run during initial setup (prompted automatically).
 
+## 🔑 Secrets & Environment Variables
+
+Secrets are stored in `.env` (gitignored). Copy the template on first setup:
+
+```bash
+cp .env.example .env
+$EDITOR .env
+```
+
+| Variable | Purpose |
+|----------|---------|
+| `OPENCODE_GO_WORKSPACE_ID` | Shared OpenCode Go workspace ID for quota tracking |
+| `BRAVE_API_KEY` | Brave Search API key (used by OpenCode Librarian agent) |
+| `SANITY_AUTH_TOKEN` | Sanity CMS authentication |
+
+> **Note:** The OpenCode Go auth cookie is **not** in `.env`. It's stored in
+> `~/.config/opencode/opencode-quota/opencode-go.json` (gitignored) and managed
+> by the refresh script — see below.
+
+## 🤖 OpenCode Go Setup
+
+This repo includes a shared [OpenCode](https://opencode.ai) configuration with the
+[oh-my-opencode-slim](https://github.com/oh-my-opencode/oh-my-opencode-slim) agent
+orchestration plugin and [opencode-quota](https://github.com/slkiser/opencode-quota)
+for usage tracking.
+
+### Auth Cookie
+
+OpenCode Go requires an auth cookie for quota tracking. To set it up or refresh it:
+
+```bash
+~/.config/opencode/scripts/refresh-opencode-quota.sh
+```
+
+This extracts the `auth` cookie from your browser and saves it to
+`opencode-quota/opencode-go.json`. Run it again when the cookie expires.
+
+| Flag | Purpose |
+|------|---------|
+| `--check` | Check if current cookie is valid without refreshing |
+| `--force` | Force refresh even if the cookie is still valid |
+
 ## 📝 Notes
 
 - **Tested on**: Apple Silicon Macs (M1/M2/M4) and Arch Linux (Intel + NVIDIA)
 - **XDG Base Directory**: Follows `~/.config` standard
 - **Stow-based**: Uses GNU Stow for symlink management
 - **Git-tracked**: All configs versioned for easy restoration
+- **Shared account**: OpenCode Go is shared — use `/quota` in OpenCode to check usage
 - **macOS-only configs** (`aerospace`, `sketchybar`, `raycast`, `Brewfile`) are automatically ignored by stow on Arch Linux
 
 ## 📖 Detailed Documentation
