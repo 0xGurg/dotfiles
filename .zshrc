@@ -20,7 +20,7 @@ export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
 
 # Load secrets from .env (gitignored)
-[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env" && export SANITY_AUTH_TOKEN
+[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env"
 
 # ============================================================================
 # ALIASES
@@ -52,12 +52,31 @@ alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
 alias lg="lazygit"
 
+# Wireguard
+alias wg="sudo wg"
+alias wgu="wg-quick up"
+alias wgd="wg-quick down"
+
 # ============================================================================
 # PKGUP - Declarative Package Manager (macOS: Homebrew, Arch: bigkis)
 # ============================================================================
 pkgup() {
   if [[ "$OS" == "macos" ]]; then
-    brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    local cleanup_list
+    cleanup_list=$(brew bundle cleanup --file="$HOME/dotfiles/Brewfile" 2>/dev/null)
+    if [[ -n "$cleanup_list" ]]; then
+      echo "The following packages are not in Brewfile and would be removed:"
+      echo "$cleanup_list"
+      if read -q "REPLY?Proceed with cleanup? (y/N) "; then
+        echo ""
+        brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      else
+        echo ""
+        brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+      fi
+    else
+      brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
+    fi
   elif [[ "$OS" == "linux" ]]; then
     sudo env "PATH=$PATH" bigkis --config "$HOME/.config/bigkis/system.toml" apply || return 1
   fi
@@ -89,6 +108,14 @@ killport() {
     fuser -k "$1"/tcp 2>/dev/null
   fi
 }
+
+# wg-quick requires bash 4+, but macOS ships with bash 3.2.
+# This wrapper forces it to run under Homebrew bash.
+if [[ "$OS" == "macos" ]]; then
+  function wg-quick() {
+    sudo /opt/homebrew/bin/bash /opt/homebrew/bin/wg-quick "$@"
+  }
+fi
 
 # ============================================================================
 # COMPLETIONS & PLUGINS
@@ -155,13 +182,11 @@ eval "$(zoxide init zsh)"
 # ============================================================================
 # STARTUP
 # ============================================================================
-ff
+# fastfetch runs in .zprofile (login shells only) to avoid slowing down subshells
 
 # ============================================================================
 # PNPM (Linux only — macOS uses Homebrew for global node tools)
 # ============================================================================
-# Replaces what `pnpm setup` would auto-write so the dotfile stays portable
-# across machines/usernames instead of hardcoding /home/<user>/...
 if [[ "$OS" == "linux" ]]; then
   export PNPM_HOME="$HOME/.local/share/pnpm"
   case ":$PATH:" in
@@ -169,3 +194,6 @@ if [[ "$OS" == "linux" ]]; then
     *) export PATH="$PNPM_HOME:$PATH" ;;
   esac
 fi
+
+# Added by Antigravity
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
