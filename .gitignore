@@ -1,15 +1,14 @@
 .env
-.config/fgj/config.yaml
 
 # Local/sensitive app data (Linux)
 .config/BraveSoftware/
 .config/dconf/
-.config/hypr/
 .config/pulse/
 .config/rclone/
 
 # OpenCode quota data
 .config/opencode/opencode-quota/opencode-go.json
+.config/opencode/node_modules/
 
 # Sanity CLI config (auto-generated telemetry/auth settings)
 .config/sanity/
@@ -38,7 +37,4 @@ result-*
 wg0.conf
 
 # fgj (third-party git forge tool — may contain tokens)
-.config/fgj/
-
-# Sayang app (separate repo)
-sayang/
+.config/fgj/config.yaml
