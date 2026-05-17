@@ -15,7 +15,7 @@ install_packages() {
         print_warning "bigkis not found — skipping package installation"
         print_warning "Install bigkis and yay, then run: sudo bigkis apply"
       else
-        local BIGKIS_CFG="$HOME/.config/bigkis/system.toml"
+        local BIGKIS_CFG="$DOTFILES_DIR/.config/bigkis/system.toml"
 
         print_status "Running bigkis doctor preflight checks..."
         if ! sudo env "PATH=$PATH" bigkis --config "$BIGKIS_CFG" doctor; then

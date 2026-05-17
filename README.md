@@ -227,7 +227,7 @@ Or run during initial setup (prompted automatically).
 Secrets are stored in `.env` (gitignored). Copy the template on first setup:
 
 ```bash
-cp .env.example .env
+cp .env.tmpl .env
 $EDITOR .env
 ```
 

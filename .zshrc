@@ -14,13 +14,21 @@ setopt AUTO_CD
 # ============================================================================
 # ENVIRONMENT VARIABLES
 # ============================================================================
-[[ "$OS" == "macos" ]] && export TMPDIR=$(getconf DARWIN_USER_TEMP_DIR)
+[[ "$OS" == "macos" ]] && export TMPDIR="$(getconf DARWIN_USER_TEMP_DIR)"
 export PATH="$HOME/.local/bin:$PATH"
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export EDITOR=nvim
 
 # Load secrets from .env (gitignored)
-[[ -f "$HOME/dotfiles/.env" ]] && source "$HOME/dotfiles/.env"
+if [[ -f "$HOME/dotfiles/.env" ]]; then
+	if [[ -o allexport ]]; then
+		source "$HOME/dotfiles/.env"
+	else
+		set -a
+		source "$HOME/dotfiles/.env"
+		set +a
+	fi
+fi
 
 # ============================================================================
 # ALIASES
@@ -172,12 +180,16 @@ fi
 # ============================================================================
 # STARSHIP PROMPT
 # ============================================================================
-eval "$(starship init zsh)"
+if command -v starship &> /dev/null; then
+	eval "$(starship init zsh)"
+fi
 
 # ============================================================================
 # ZOXIDE
 # ============================================================================
-eval "$(zoxide init zsh)"
+if command -v zoxide &> /dev/null; then
+	eval "$(zoxide init zsh)"
+fi
 
 # ============================================================================
 # STARTUP
