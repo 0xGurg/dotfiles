@@ -44,6 +44,9 @@ alias nv="nvim"
 alias nvh="nvim ."
 [[ "$OS" == "macos" ]] && alias nvhc="$HOME/dotfiles/scripts/nvhc.sh"
 
+# Secrets
+alias ssh-sync="python3 $HOME/dotfiles/scripts/inject-secrets.py"
+
 # Git
 alias gpo="git pull origin --no-rebase"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
@@ -55,7 +58,7 @@ alias wgu="wg-quick up"
 alias wgd="wg-quick down"
 
 # ============================================================================
-# PKGUP - Declarative Package Manager (cross-platform)
+# PKGUP - Declarative Package Manager (macOS: Homebrew, Arch: bigkis)
 # ============================================================================
 pkgup() {
   if [[ "$OS" == "macos" ]]; then
@@ -75,20 +78,7 @@ pkgup() {
       brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
     fi
   elif [[ "$OS" == "linux" ]]; then
-    local PNPM_LIST="$HOME/dotfiles/packages/pnpm.list"
-
-    sudo decman || return 1
-
-    local PKGS=("${(@f)$(sed -n '/^[^#[:space:]]/p' "$PNPM_LIST")}")
-    [[ ${#PKGS[@]} -gt 0 ]] && pnpm add -g "${PKGS[@]}"
-    pnpm update -g
-
-    # Cleanup: remove globals not declared in pnpm.list
-    local pkg
-    while IFS= read -r pkg; do
-      grep -qxF -- "$pkg" "$PNPM_LIST" 2>/dev/null \
-        || pnpm remove -g "$pkg"
-    done < <(pnpm list -g --depth=0 --json 2>/dev/null | jq -r '.[].dependencies // {} | keys[]')
+    sudo env "PATH=$PATH" bigkis --config "$HOME/.config/bigkis/system.toml" apply || return 1
   fi
 }
 
@@ -194,17 +184,16 @@ eval "$(zoxide init zsh)"
 # ============================================================================
 # fastfetch runs in .zprofile (login shells only) to avoid slowing down subshells
 
-# pnpm (cross-platform)
-if [[ "$OS" == "macos" ]]; then
-  export PNPM_HOME="$HOME/Library/pnpm"
-else
+# ============================================================================
+# PNPM (Linux only — macOS uses Homebrew for global node tools)
+# ============================================================================
+if [[ "$OS" == "linux" ]]; then
   export PNPM_HOME="$HOME/.local/share/pnpm"
+  case ":$PATH:" in
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
+  esac
 fi
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
 
 # Added by Antigravity
 export PATH="$HOME/.antigravity/antigravity/bin:$PATH"

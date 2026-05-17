@@ -1,0 +1,140 @@
+# bigkis system declaration
+# Config search path: --config, $BIGKIS_CONFIG, /etc/bigkis/system.toml,
+# $XDG_CONFIG_HOME/bigkis/system.toml, ~/.config/bigkis/system.toml
+#
+# Stowed from ~/dotfiles/.config/bigkis/ → ~/.config/bigkis/system.toml
+
+[settings]
+enabled = ["pacman", "aur", "flatpak", "node"]
+aur_helper = "yay"
+node_manager = "pnpm"
+prune_orphans = "scoped"
+
+# =============================================================================
+# PACMAN — Native Arch repository packages
+# =============================================================================
+[pacman]
+packages = [
+  # System
+  "base",
+  "base-devel",
+  "linux",
+  "linux-firmware",
+  "sudo",
+  "zsh",
+  "ufw",
+  "iwd",
+  "lvm2",
+  "sbctl",
+  "efibootmgr",
+  "intel-ucode",
+  "zram-generator",
+  "openssh",
+  "lsof",
+
+  # Bluetooth & Firmware
+  "bluez",
+  "bluez-utils",
+  "sof-firmware",
+
+  # Audio (PipeWire)
+  "pipewire",
+  "pipewire-alsa",
+  "pipewire-jack",
+  "pipewire-pulse",
+  "wireplumber",
+  "gst-plugin-pipewire",
+  "libpulse",
+
+  # GPU & Display (Intel iGPU + NVIDIA dGPU hybrid, Wayland compat)
+  "vulkan-intel",
+  "intel-media-driver",
+  "nvidia-open",
+  "nvidia-utils",
+  "qt5-wayland",
+  "qt6-wayland",
+
+  # Wayland / Desktop
+  "hyprland",
+  "xdg-desktop-portal-hyprland",
+
+  # Shell & CLI Tools
+  "git",
+  "stow",
+  "fastfetch",
+  "starship",
+  "zoxide",
+  "atuin",
+  "bat",
+  "ripgrep",
+  "lazygit",
+  "shfmt",
+  "jq",
+  "zsh-autosuggestions",
+  "zsh-syntax-highlighting",
+  "ntfs-3g",
+  "rclone",
+  "cifs-utils",
+  "btrfs-progs",
+
+  # Fonts
+  "ttf-hack-nerd",
+  "ttf-jetbrains-mono-nerd",
+  "noto-fonts",
+  "noto-fonts-cjk",
+
+  # Terminal
+  "ghostty",
+
+  # Development
+  "neovim",
+  "fnm",
+  "pnpm",
+  "cmake",
+  "opencode",
+
+  # Applications
+  "btop",
+  "ollama",
+  "wireguard-tools",
+  "bitwarden",
+  "bitwarden-cli",
+  "flatpak",
+  "steam",
+]
+ignored = []
+
+# =============================================================================
+# AUR — Foreign packages built via paru
+# =============================================================================
+[aur]
+packages = [
+  "bigkis-bin",
+  "brave-bin",
+  "zapzap",
+  # "howdy-git",  # TODO: blocked — python-dlib→CUDA build fails with GCC 16 / CUDA 13
+]
+ignored = []
+
+# =============================================================================
+# FLATPAK — System-wide Flatpak apps from Flathub
+# =============================================================================
+[flatpak]
+remote = "flathub"
+packages = ["com.spotify.Client"]
+ignored = []
+
+# =============================================================================
+# NODE — Global pnpm packages
+# =============================================================================
+# TODO: re-enable once two bigkis bugs are fixed:
+#   1. node plugin runs pnpm as root instead of dropping to $SUDO_USER (the
+#      AUR plugin already does this via resolveHelperUser()).
+#   2. fresh-install bootstrap has no PNPM_HOME because `pnpm setup` was
+#      never run — bigkis should detect this and either run pnpm setup
+#      itself or surface a clear actionable error.
+# In the meantime, install global node packages manually after bootstrap:
+#   pnpm setup && exec $SHELL
+#   pnpm add -g supabase
+[node]
+packages = []
