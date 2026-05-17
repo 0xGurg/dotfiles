@@ -9,11 +9,9 @@ Personal configuration files for macOS and Arch Linux, managed with GNU Stow.
 ├── .zshrc              # Zsh shell config (stowed to ~/.zshrc)
 ├── .zprofile           # Login shell startup (fastfetch runs here)
 ├── Brewfile            # Homebrew packages (macOS)
-├── decman/             # Arch Linux package declarations (pacman/AUR/flatpak)
-│   └── source.py
-├── packages/           # Cross-platform package lists
-│   └── pnpm.list       # Global pnpm packages
 ├── .config/            # XDG config directory (stowed to ~/.config/)
+│   ├── bigkis/         # Arch Linux package declarations (pacman/AUR/flatpak/node)
+│   │   └── system.toml
 │   ├── starship/       # Starship prompt
 │   │   └── starship.toml
 │   ├── git/            # Git configuration
@@ -54,7 +52,7 @@ The script auto-detects your OS and handles everything:
 
 | Step | macOS | Arch Linux |
 |------|-------|------------|
-| Package manager | Homebrew | decman (pacman + AUR + flatpak) |
+| Package manager | Homebrew | bigkis (pacman + AUR + flatpak + node) |
 | Symlinks | `stow .` | `stow .` (macOS-only configs ignored) |
 | Default shell | — (zsh is default) | `chsh` to zsh |
 | NVIDIA Early KMS | — | `mkinitcpio.conf` + systemd-boot param |
@@ -106,7 +104,7 @@ This enrolls your keys (including Microsoft keys with `-m` for hardware compatib
 | **AeroSpace** | Window tiling manager | macOS |
 | **SketchyBar** | Custom macOS status bar | macOS |
 | **Hyprland** | Wayland compositor / tiling WM | Arch |
-| **decman** | Declarative package manager (pacman/AUR/flatpak) | Arch |
+| **bigkis** | Declarative package manager (pacman/AUR/flatpak/node) | Arch |
 | **UFW** | Firewall | Arch |
 | **sbctl** | Secure Boot key management | Arch |
 
@@ -138,13 +136,30 @@ pkgup
 ```
 
 On macOS this runs `brew update && brew bundle install && brew upgrade`.
-On Arch it runs `decman` (pacman + AUR + flatpak) followed by a `pnpm` global update.
+On Arch it runs `bigkis apply` (pacman + AUR + flatpak + node).
 
 ### macOS — Add New Package
 Edit `Brewfile` and run `pkgup`.
 
 ### Arch — Add New Package
-Edit `decman/source.py` (categorised into `pacman`, `aur`, `flatpak`) and run `pkgup`.
+Edit `bigkis/system.toml` and run `pkgup`.
+
+### Arch — Migrating an Existing Box Into bigkis
+On a **fresh Arch install**, just run `setup.sh` — it applies `system.toml` as-is.
+
+On a **long-lived Arch box** that already has packages installed outside bigkis,
+seed a starter config from the current system once before adopting bigkis:
+
+```bash
+bigkis import > ~/.config/bigkis/system.toml
+# Review/prune the generated file, then commit it to dotfiles.
+```
+
+After that, the normal `pkgup` flow takes over. `bigkis import` is **not** part of
+the fresh-install bootstrap — it's a one-time seed for migration.
+
+To detect packages installed ad-hoc later (drift), use `bigkis status` (which
+`setup.sh` already runs as a post-flight check).
 
 ## 🎨 Customization
 
@@ -170,7 +185,7 @@ Edit `.config/git/config` for user settings.
 
 | Alias | Command |
 |-------|---------|
-| `pkgup` | Update all packages (brew on macOS, decman + pnpm on Arch) |
+| `pkgup` | Update all packages (brew on macOS, bigkis on Arch) |
 | `sz` | Reload shell config |
 | `nv` | Open neovim |
 | `nvh` | Open neovim in current dir |

@@ -31,6 +31,7 @@ brew "colima"
 brew "docker"
 brew "pipx"
 brew "pnpm"
+brew "bitwarden-cli"
 brew "fnm"
 brew "bash"
 
