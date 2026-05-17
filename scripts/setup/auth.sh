@@ -12,7 +12,10 @@ setup_auth() {
 setup_touchid() {
   print_status "Setting up Touch ID for sudo..."
 
-  if [[ -f /etc/pam.d/sudo ]] && grep -q "pam_tid.so" /etc/pam.d/sudo; then
+  local PAM_LINE="auth       sufficient     pam_tid.so"
+
+  if { [[ -f /etc/pam.d/sudo_local ]] && grep -q "pam_tid.so" /etc/pam.d/sudo_local; } ||
+     { [[ -f /etc/pam.d/sudo ]] && grep -q "pam_tid.so" /etc/pam.d/sudo; }; then
     print_success "Touch ID already enabled for sudo"
     return 0
   fi
@@ -23,7 +26,15 @@ setup_touchid() {
   echo ""
 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo sh -c 'echo "auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
+    if [[ -f /etc/pam.d/sudo_local.template ]]; then
+      [[ -f /etc/pam.d/sudo_local ]] || sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
+      printf '%s\n' "$PAM_LINE" | sudo tee -a /etc/pam.d/sudo_local > /dev/null
+    else
+      local backup="/etc/pam.d/sudo.dotfiles-backup.$(date +%Y%m%d-%H%M%S)"
+      sudo cp /etc/pam.d/sudo "$backup"
+      awk -v line="$PAM_LINE" 'BEGIN { print line } { print }' /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
+      print_status "Original sudo PAM config backed up to $backup"
+    fi
     print_success "Touch ID enabled for sudo"
   else
     print_status "Skipping Touch ID setup (run scripts/enable-touchid-sudo.sh later)"

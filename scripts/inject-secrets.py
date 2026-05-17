@@ -15,7 +15,6 @@ Usage:
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -49,8 +48,56 @@ def error(msg):
 
 def read_config():
     text = CONFIG.read_text()
-    text = re.sub(r"//.*", "", text)
-    return json.loads(text)
+    return json.loads(strip_jsonc_comments(text))
+
+
+def strip_jsonc_comments(text):
+    result = []
+    i = 0
+    in_string = False
+    string_quote = ""
+    escaped = False
+
+    while i < len(text):
+        char = text[i]
+        next_char = text[i + 1] if i + 1 < len(text) else ""
+
+        if in_string:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == string_quote:
+                in_string = False
+            i += 1
+            continue
+
+        if char in ('"', "'"):
+            in_string = True
+            string_quote = char
+            result.append(char)
+            i += 1
+            continue
+
+        if char == "/" and next_char == "/":
+            i += 2
+            while i < len(text) and text[i] not in "\r\n":
+                i += 1
+            continue
+
+        if char == "/" and next_char == "*":
+            i += 2
+            while i + 1 < len(text) and not (text[i] == "*" and text[i + 1] == "/"):
+                result.append("\n" if text[i] in "\r\n" else " ")
+                i += 1
+            i += 2
+            continue
+
+        result.append(char)
+        i += 1
+
+    return "".join(result)
 
 
 def bw_run(*args):
