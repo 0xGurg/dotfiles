@@ -1,5 +1,5 @@
 #!/bin/bash
-# Environment variables setup (.env from .env.example)
+# Environment variables setup (.env from .env.tmpl)
 
 setup_env() {
   print_status "Setting up environment variables..."
@@ -9,12 +9,12 @@ setup_env() {
     return 0
   fi
 
-  if [[ ! -f "$DOTFILES_DIR/.env.example" ]]; then
-    print_warning "No .env.example found, skipping"
+  if [[ ! -f "$DOTFILES_DIR/.env.tmpl" ]]; then
+    print_warning "No .env.tmpl found, skipping"
     return 0
   fi
 
-  cp "$DOTFILES_DIR/.env.example" "$DOTFILES_DIR/.env"
-  print_success "Created .env from .env.example"
+  cp "$DOTFILES_DIR/.env.tmpl" "$DOTFILES_DIR/.env"
+  print_success "Created .env from .env.tmpl"
   print_warning "Edit ~/dotfiles/.env and fill in your secrets before using OpenCode"
 }

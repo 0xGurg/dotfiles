@@ -24,19 +24,25 @@ print_error() { echo -e "${RED}✗${NC} $1"; }
 enable_touchid() {
   print_status "Enabling Touch ID for sudo commands..."
 
-  # Check if Touch ID is already enabled
-  if [[ -f /etc/pam.d/sudo ]]; then
-    if grep -q "pam_tid.so" /etc/pam.d/sudo; then
-      print_success "Touch ID is already enabled for sudo"
-      return 0
-    fi
+  local PAM_LINE="auth       sufficient     pam_tid.so"
+
+  if { [[ -f /etc/pam.d/sudo_local ]] && grep -q "pam_tid.so" /etc/pam.d/sudo_local; } ||
+     { [[ -f /etc/pam.d/sudo ]] && grep -q "pam_tid.so" /etc/pam.d/sudo; }; then
+    print_success "Touch ID is already enabled for sudo"
+    return 0
   fi
 
-  # Create sudo file with Touch ID support
-  # This file persists across macOS updates (sudo file doesn't)
-  print_status "Creating /etc/pam.d/sudo..."
-  sudo sh -c 'echo "# Touch ID support for sudo
-auth       sufficient     pam_tid.so" > /etc/pam.d/sudo'
+  if [[ -f /etc/pam.d/sudo_local.template ]]; then
+    print_status "Enabling Touch ID via /etc/pam.d/sudo_local..."
+    [[ -f /etc/pam.d/sudo_local ]] || sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
+    printf '%s\n' "$PAM_LINE" | sudo tee -a /etc/pam.d/sudo_local > /dev/null
+  else
+    local backup="/etc/pam.d/sudo.dotfiles-backup.$(date +%Y%m%d-%H%M%S)"
+    print_status "Enabling Touch ID in /etc/pam.d/sudo..."
+    sudo cp /etc/pam.d/sudo "$backup"
+    awk -v line="$PAM_LINE" 'BEGIN { print line } { print }' /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
+    print_status "Original sudo PAM config backed up to $backup"
+  fi
 
   print_success "Touch ID enabled for sudo commands!"
   echo ""
