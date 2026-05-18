@@ -30,11 +30,18 @@ result-*
 # macOS
 .DS_Store
 
-# OpenCode generated lockfile
+# OpenCode (generated lockfile + dependencies)
 .config/opencode/package-lock.json
+.config/opencode/node_modules/
 
 # WireGuard config (contains private keys)
 wg0.conf
 
 # fgj (third-party git forge tool — may contain tokens)
-.config/fgj/config.yaml
+.config/fgj/
+
+# Neovim (auto-generated Lua config)
+.config/nvim/.luarc.json
+
+# Sayang app (separate repo)
+sayang/

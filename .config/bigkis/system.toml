@@ -24,35 +24,28 @@ packages = [
   "zsh",
   "ufw",
   "iwd",
-  "lvm2",
   "sbctl",
   "efibootmgr",
+  "grub",
   "intel-ucode",
   "zram-generator",
   "openssh",
-  "lsof",
 
-  # Bluetooth & Firmware
+  # Bluetooth
   "bluez",
   "bluez-utils",
-  "sof-firmware",
 
   # Audio (PipeWire)
   "pipewire",
   "pipewire-alsa",
-  "pipewire-jack",
   "pipewire-pulse",
   "wireplumber",
-  "gst-plugin-pipewire",
-  "libpulse",
 
-  # GPU & Display (Intel iGPU + NVIDIA dGPU hybrid, Wayland compat)
+  # GPU & Display (Intel iGPU + NVIDIA dGPU hybrid)
   "vulkan-intel",
   "intel-media-driver",
   "nvidia-open",
   "nvidia-utils",
-  "qt5-wayland",
-  "qt6-wayland",
 
   # Wayland / Desktop
   "hyprland",
@@ -72,7 +65,6 @@ packages = [
   "jq",
   "zsh-autosuggestions",
   "zsh-syntax-highlighting",
-  "ntfs-3g",
   "rclone",
   "cifs-utils",
   "btrfs-progs",
