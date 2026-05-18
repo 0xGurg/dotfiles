@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "opencode-go-zen",
+  "preset": "free-mix",
   "disabled_agents": [],
   "presets": {
     "openai": {
@@ -91,7 +91,7 @@
         "mcps": []
       }
     },
-    "opencode-go-zen": {
+    "free-mix": {
       "orchestrator": {
         "model": "opencode-go/deepseek-v4-pro",
         "variant": "max",
@@ -116,11 +116,11 @@
         "mcps": ["websearch", "context7", "grep_app", "brave-search"]
       },
       "explorer": {
-        "model": "github-copilot/gpt-5-mini",
+        "model": "opencode/minimax-m2.5-free",
+        "variant": "low",
         "skills": [],
         "mcps": []
       },
-
       "designer": {
         "model": "opencode-go/kimi-k2.6",
         "variant": "medium",
@@ -137,6 +137,30 @@
         "skills": [],
         "mcps": []
       }
+    }
+  },
+  "council": {
+    "default_preset": "free-mix",
+    "presets": {
+      "free-mix": {
+        "copilot": { "model": "github-copilot/gpt-4.1" },
+        "qwen": { "model": "opencode/qwen3.6-plus-free" },
+        "minimax": { "model": "opencode/minimax-m2.5-free" },
+        "big-pickle": { "model": "opencode/big-pickle" }
+      }
+    },
+    "timeout": 90000,
+    "councillor_execution_mode": "parallel",
+    "councillor_retries": 1
+  },
+  "fallback": {
+    "enabled": true,
+    "timeoutMs": 60000,
+    "retryDelayMs": 500,
+    "chains": {
+      "oracle": ["opencode/big-pickle"],
+      "fixer": ["opencode/deepseek-v4-flash-free", "github-copilot/claude-haiku-4.5"],
+      "librarian": ["opencode/deepseek-v4-flash-free"]
     }
   }
 }
