@@ -34,6 +34,7 @@ brew "pnpm"
 brew "bitwarden-cli"
 brew "fnm"
 brew "bash"
+brew "go"
 
 cask "brave-browser"
 cask "firefox@developer-edition"
