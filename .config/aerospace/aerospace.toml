@@ -184,7 +184,7 @@ alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
 alt-tab = 'workspace-back-and-forth'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
-# See: https://nikitabobko.github.io/AeroSrace/commands#mode
+# See: https://nikitabobko.github.io/AeroSpace/commands#mode
 alt-shift-semicolon = 'mode service'
 alt-shift-enter = 'mode apps'
 
@@ -208,6 +208,16 @@ f = [
 backspace = ['close-all-windows-but-current', 'mode main']
 
 [mode.apps.binding]
+esc = ['mode main']
+b = 'exec-and-forget open -a /Applications/Brave\ Browser.app'
+f = 'exec-and-forget open -a /Applications/Firefox\ Developer\ Edition.app'
+e = 'exec-and-forget open -a /Applications/Microsoft\ Edge.app'
+c = 'exec-and-forget open -a /Applications/Google\ Chrome.app'
+t = 'exec-and-forget open -a /Applications/Ghostty.app'
+v = 'exec-and-forget open -a /Applications/Cursor.app'
+s = 'exec-and-forget open -a /Applications/Spotify.app'
+w = 'exec-and-forget open -a /Applications/WhatsApp.app'
+return = 'layout floating tiling'
 
 [workspace-to-monitor-force-assignment]
 1 = 'main'

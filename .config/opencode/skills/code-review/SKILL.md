@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use after @fixer completes any non-trivial implementation, code change, PR, or feature work — not just TUI. Invoke @reviewer-minimax and @reviewer-qwen in parallel to catch anti-patterns, missing edge cases, and test gaps before marking work as done.
+description: MUST invoke after any non-trivial implementation — whether done by @fixer or the orchestrator directly. Invoke @reviewer-minimax and @reviewer-qwen in parallel to catch anti-patterns, missing edge cases, and test gaps before marking work as done.
 ---
 
 # Code Review Workflow

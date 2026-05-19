@@ -231,6 +231,12 @@ cp .env.tmpl .env
 $EDITOR .env
 ```
 
+Or fill them automatically from Bitwarden:
+
+```bash
+python3 scripts/inject-secrets.py
+```
+
 | Variable | Purpose |
 |----------|---------|
 | `OPENCODE_GO_WORKSPACE_ID` | Shared OpenCode Go workspace ID for quota tracking |
