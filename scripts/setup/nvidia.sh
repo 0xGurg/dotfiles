@@ -55,8 +55,17 @@ setup_early_kms() {
     else
       print_status "Adding $PARAM to GRUB_CMDLINE_LINUX..."
       sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 $PARAM\"|" "$GRUB_DEFAULT"
-      sudo grub-mkconfig -o /boot/grub/grub.cfg
-      print_success "GRUB: $PARAM added + grub.cfg regenerated"
+
+      # Ensure /boot/grub exists (may not yet on a fresh install
+      # where the ESP is at /efi and /boot is inside the root fs)
+      sudo mkdir -p /boot/grub
+
+      if sudo grub-mkconfig -o /boot/grub/grub.cfg; then
+        print_success "GRUB: $PARAM added + grub.cfg regenerated"
+      else
+        print_warning "GRUB: $PARAM added to /etc/default/grub but grub-mkconfig failed"
+        print_warning "Run 'sudo grub-mkconfig -o /boot/grub/grub.cfg' manually after boot is set up"
+      fi
       ((patched++)) || true
     fi
   fi
