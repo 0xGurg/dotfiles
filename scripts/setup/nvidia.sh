@@ -27,30 +27,44 @@ setup_early_kms() {
     print_success "Initramfs regenerated"
   fi
 
-  local ENTRIES_DIR="/boot/loader/entries"
-
-  if [[ ! -d "$ENTRIES_DIR" ]]; then
-    print_warning "systemd-boot entries directory not found at $ENTRIES_DIR — skipping kernel param"
-    return 0
-  fi
-
   local PARAM="nvidia_drm.modeset=1"
   local patched=0
 
-  for entry in "$ENTRIES_DIR"/*.conf; do
-    [[ -f "$entry" ]] || continue
+  # ── systemd-boot ──────────────────────────────────────────────
+  local ENTRIES_DIR="/boot/loader/entries"
+  if [[ -d "$ENTRIES_DIR" ]]; then
+    for entry in "$ENTRIES_DIR"/*.conf; do
+      [[ -f "$entry" ]] || continue
 
-    if grep -q "$PARAM" "$entry"; then
-      print_success "$(basename "$entry"): $PARAM already set"
+      if grep -q "$PARAM" "$entry"; then
+        print_success "$(basename "$entry"): $PARAM already set"
+      else
+        print_status "Adding $PARAM to $(basename "$entry")..."
+        sudo sed -i "s|^\(options\s.*\)$|\1 $PARAM|" "$entry"
+        print_success "$(basename "$entry"): $PARAM added"
+        ((patched++)) || true
+      fi
+    done
+  fi
+
+  # ── GRUB ──────────────────────────────────────────────────────
+  local GRUB_DEFAULT="/etc/default/grub"
+  if [[ -f "$GRUB_DEFAULT" ]]; then
+    if grep -q "$PARAM" "$GRUB_DEFAULT"; then
+      print_success "GRUB: $PARAM already set"
     else
-      print_status "Adding $PARAM to $(basename "$entry")..."
-      sudo sed -i "s|^\(options\s.*\)$|\1 $PARAM|" "$entry"
-      print_success "$(basename "$entry"): $PARAM added"
+      print_status "Adding $PARAM to GRUB_CMDLINE_LINUX..."
+      sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 $PARAM\"|" "$GRUB_DEFAULT"
+      sudo grub-mkconfig -o /boot/grub/grub.cfg
+      print_success "GRUB: $PARAM added + grub.cfg regenerated"
       ((patched++)) || true
     fi
-  done
+  fi
 
   if [[ $patched -gt 0 ]]; then
     print_warning "Kernel parameter change requires a reboot to take effect"
+  fi
+  if [[ ! -d "$ENTRIES_DIR" ]] && [[ ! -f "$GRUB_DEFAULT" ]]; then
+    print_warning "No systemd-boot entries dir or GRUB default found — skipping kernel param"
   fi
 }

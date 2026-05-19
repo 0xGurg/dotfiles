@@ -3,6 +3,7 @@ tap "romaintb/fgj", "https://codeberg.org/romaintb/homebrew-fgj.git"
 tap "0xGurg/distillery", "https://github.com/0xGurg/distillery.git"
 
 brew "FelixKratz/formulae/sketchybar"
+brew "FelixKratz/formulae/borders"
 brew "supabase/tap/supabase"
 brew "romaintb/fgj/fgj"
 
