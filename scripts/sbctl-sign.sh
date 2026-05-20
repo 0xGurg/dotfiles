@@ -136,7 +136,59 @@ else
   print_warning "grub-install not found — skipping GRUB reinstall"
 fi
 
-# ── Step 4: Sign EFI binaries ─────────────────────────────────────────────────
+# ── Step 4: Clean up stale EFI entries ─────────────────────────────────────────
+# Previous iterations (grub-mkstandalone, --removable, systemd-boot) may have left
+# stale binaries on the ESP. These can confuse Secure Boot or the firmware boot
+# order. Remove them before signing.
+print_status "Cleaning up stale EFI entries..."
+
+# Remove fallback bootloader (only needed for removable media, causes conflicts
+# with custom Secure Boot keys)
+if [[ -f "$ESP_DIR/EFI/BOOT/BOOTX64.EFI" ]]; then
+  print_status "Removing fallback bootloader: $ESP_DIR/EFI/BOOT/BOOTX64.EFI"
+  sudo rm -f "$ESP_DIR/EFI/BOOT/BOOTX64.EFI"
+  # Remove BOOT dir if empty
+  sudo rmdir "$ESP_DIR/EFI/BOOT" 2>/dev/null || true
+  print_success "Removed fallback bootloader"
+fi
+
+# Remove old systemd-boot entries (from previous install)
+if [[ -d "$ESP_DIR/EFI/systemd" ]]; then
+  print_status "Removing old systemd-boot: $ESP_DIR/EFI/systemd/"
+  sudo rm -rf "$ESP_DIR/EFI/systemd"
+  print_success "Removed systemd-boot"
+fi
+
+# Remove old UKI entries (from previous systemd-boot install)
+if [[ -d "$ESP_DIR/EFI/Linux" ]]; then
+  print_status "Removing old UKI entries: $ESP_DIR/EFI/Linux/"
+  sudo rm -rf "$ESP_DIR/EFI/Linux"
+  print_success "Removed UKI entries"
+fi
+
+# Remove stale GRUB standalone images from previous iterations
+for f in "$ESP_DIR/EFI/GRUB/grub-standalone.efi" "$ESP_DIR/EFI/GRUB/grubx64-standalone.efi"; do
+  if [[ -f "$f" ]]; then
+    print_status "Removing stale file: $f"
+    sudo rm -f "$f"
+    print_success "Removed: $f"
+  fi
+done
+
+# Clean up stale NVRAM boot entries (duplicates from multiple grub-install runs)
+print_status "Checking for duplicate NVRAM boot entries..."
+DUPLICATE_COUNT=$(sudo efibootmgr 2>/dev/null | grep -c "GRUB" || true)
+if [[ "$DUPLICATE_COUNT" -gt 1 ]]; then
+  print_warning "Multiple GRUB entries found in NVRAM:"
+  sudo efibootmgr 2>/dev/null | grep "GRUB" || true
+  print_info "The latest grub-install should have updated the existing entry."
+  print_info "If boot works correctly, you can clean up duplicates with: efibootmgr -b <XXXX> -B"
+else
+  print_success "NVRAM boot entry looks clean"
+fi
+echo ""
+
+# ── Step 5: Sign EFI binaries ─────────────────────────────────────────────────
 print_status "Checking EFI binaries for signing status..."
 echo ""
 sudo sbctl verify
@@ -167,7 +219,7 @@ else
   done
 fi
 
-# ── Step 5: Sign the kernel ───────────────────────────────────────────────────
+# ── Step 6: Sign the kernel ───────────────────────────────────────────────────
 # Without shim_lock, GRUB performs no kernel verification. Sign the kernel
 # so the sbctl pacman hook re-signs it automatically after updates.
 print_status "Signing kernel(s)..."
@@ -179,7 +231,7 @@ for kernel in /boot/vmlinuz-linux /boot/vmlinuz-linux-lts /boot/vmlinuz-linux-ze
 done
 echo ""
 
-# ── Step 6: Final verification ────────────────────────────────────────────────
+# ── Step 7: Final verification ────────────────────────────────────────────────
 print_status "Final verification:"
 sudo sbctl verify
 echo ""
