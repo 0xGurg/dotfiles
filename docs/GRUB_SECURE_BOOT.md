@@ -124,6 +124,33 @@ sudo sbctl sign -s /boot/vmlinuz-linux
 sudo sbctl verify
 ```
 
+## Cleanup (removing stale artifacts from previous attempts)
+
+If you went through multiple iterations (grub-mkstandalone, wrong flags, etc.), there may be leftover files on the ESP that can confuse Secure Boot:
+
+```bash
+# Remove fallback bootloader (not needed for internal NVMe, causes Secure Boot conflicts)
+sudo rm -f /efi/EFI/BOOT/BOOTX64.EFI
+sudo rmdir /efi/EFI/BOOT 2>/dev/null
+
+# Remove old systemd-boot entries (from previous install)
+sudo rm -rf /efi/EFI/systemd
+
+# Remove old UKI entries (from previous systemd-boot install)
+sudo rm -rf /efi/EFI/Linux
+
+# Remove stale GRUB standalone images from earlier attempts
+sudo rm -f /efi/EFI/GRUB/grub-standalone.efi
+sudo rm -f /efi/EFI/GRUB/grubx64-standalone.efi
+
+# Check for duplicate NVRAM boot entries
+sudo efibootmgr | grep GRUB
+# If duplicates exist, remove old ones:
+# sudo efibootmgr -b XXXX -B
+```
+
+The `sbctl-sign.sh` script now includes this cleanup automatically as Step 4.
+
 ## How sbctl vs shim.efi Compare
 
 | Approach | Boot Chain | Works? |
