@@ -82,6 +82,14 @@ print_status "Signing all unsigned EFI binaries..."
 # Extract the absolute path (starts with /) — avoids awk $NF fragility across output format changes
 mapfile -t UNSIGNED < <(sudo sbctl verify 2>/dev/null | grep -E '^\s*✗' | grep -oE '/[^[:space:]]+')
 
+# Also check common GRUB locations that sbctl verify may miss
+# (with ESP at /efi, sbctl may not scan it depending on mount order)
+for candidate in /efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/GRUB/grubx64.efi; do
+  if [[ -f "$candidate" ]] && ! sudo sbctl verify 2>/dev/null | grep -q "$candidate"; then
+    UNSIGNED+=("$candidate")
+  fi
+done
+
 if [[ ${#UNSIGNED[@]} -eq 0 ]]; then
   print_success "All EFI binaries are already signed — nothing to do"
 else
