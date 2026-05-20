@@ -128,6 +128,12 @@ ls cat help halt reboot chain png jpeg tga regexp tr acpi"
     "/boot/grub/grub.cfg=$GRUB_CFG"
 
   print_success "Standalone GRUB image built: $GRUB_EFI"
+
+  # Sign the new binary immediately — grub-mkstandalone creates an unsigned
+  # file and sbctl verify may not pick it up if it's not in the database yet
+  print_status "Signing standalone GRUB image..."
+  sudo sbctl sign -s "$GRUB_EFI"
+  print_success "Signed: $GRUB_EFI"
   echo ""
 elif [[ -n "$GRUB_EFI" ]]; then
   print_warning "grub-mkstandalone not found — cannot build standalone GRUB image"
