@@ -100,20 +100,25 @@ if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
 
   # Modules needed for Btrfs root + standard boot
   # Note: efi_removable_file was removed in newer GRUB versions — omit it
+  # Note: zfs is excluded — only needed for ZFS root, and the .mod file
+  #       on some systems is corrupt/truncated, which breaks the standalone image
   GRUB_MODULES="normal ext2 btrfs part_gpt cryptodisk luks gcry_rijndael argon2 \
 lvm fat ntfs hfsplus iso9660 loopback search search_fs_uuid search_label \
 search_file linux boot configfile memtest test loadenv echo sleep read \
 keystatus font gfxterm gfxmenu video video_fb vbe all_video efi_gop efi_uga \
 ls cat help halt reboot chain png jpeg tga regexp tr acpi"
 
-  # Filter out modules that don't exist on this system
+  # Filter out modules that don't exist or are corrupt on this system
   GRUB_MOD_DIR="/usr/lib/grub/x86_64-efi"
   FILTERED_MODULES=""
   for mod in $GRUB_MODULES; do
-    if [[ -f "$GRUB_MOD_DIR/${mod}.mod" ]]; then
-      FILTERED_MODULES="$FILTERED_MODULES $mod"
-    else
+    mod_file="$GRUB_MOD_DIR/${mod}.mod"
+    if [[ ! -f "$mod_file" ]]; then
       print_warning "Module ${mod}.mod not found in $GRUB_MOD_DIR — skipping"
+    elif [[ "$(stat -c%s "$mod_file" 2>/dev/null || stat -f%z "$mod_file" 2>/dev/null)" -lt 4 ]]; then
+      print_warning "Module ${mod}.mod is empty or corrupt — skipping"
+    else
+      FILTERED_MODULES="$FILTERED_MODULES $mod"
     fi
   done
 
