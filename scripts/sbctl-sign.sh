@@ -9,6 +9,12 @@
 #   - scripts/sbctl-setup.sh has been run (keys exist)
 #   - You have rebooted into BIOS, cleared existing Secure Boot keys,
 #     and booted back into Arch Linux (firmware is now in Setup Mode)
+#
+# GRUB + Secure Boot note:
+#   GRUB loads .mod files from disk at boot time, which Secure Boot blocks
+#   because they aren't signed EFI binaries. This script builds a standalone
+#   GRUB image (grub-mkstandalone) that embeds all modules into the single
+#   grubx64.efi binary, eliminating runtime module loading.
 # ============================================================================
 
 set -e
@@ -69,13 +75,57 @@ else
   echo ""
 fi
 
-# ── Step 3: Verify which EFI files need signing ──────────────────────────────
+# ── Step 3: Build standalone GRUB image (if using GRUB) ──────────────────────
+# GRUB loads .mod files from disk at boot, which Secure Boot blocks.
+# grub-mkstandalone embeds all modules into a single EFI binary.
+GRUB_CFG="/boot/grub/grub.cfg"
+GRUB_EFI=""
+
+# Detect GRUB EFI binary location
+for candidate in /efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/GRUB/grubx64.efi; do
+  if [[ -f "$candidate" ]]; then
+    GRUB_EFI="$candidate"
+    break
+  fi
+done
+
+if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
+  print_status "Building standalone GRUB image (embeds all modules for Secure Boot)..."
+
+  if [[ ! -f "$GRUB_CFG" ]]; then
+    print_warning "$GRUB_CFG not found — generating it first..."
+    sudo mkdir -p /boot/grub
+    sudo grub-mkconfig -o "$GRUB_CFG"
+  fi
+
+  # Modules needed for Btrfs root + standard boot
+  GRUB_MODULES="normal ext2 btrfs part_gpt cryptodisk luks gcry_rijndael argon2 \
+lvm fat ntfs hfsplus iso9660 loopback search search_fs_uuid search_label \
+search_file linux boot configfile memtest test loadenv echo sleep read \
+keystatus font gfxterm gfxmenu video video_fb vbe all_video efi_gop efi_uga \
+ls cat help halt reboot chain png jpeg tga regexp tr acpi"
+
+  sudo grub-mkstandalone -O x86_64-efi \
+    -o "$GRUB_EFI" \
+    --modules="$GRUB_MODULES" \
+    "/boot/grub/grub.cfg=$GRUB_CFG"
+
+  print_success "Standalone GRUB image built: $GRUB_EFI"
+  echo ""
+elif [[ -n "$GRUB_EFI" ]]; then
+  print_warning "grub-mkstandalone not found — cannot build standalone GRUB image"
+  print_warning "GRUB may fail to boot with Secure Boot enabled (module loading blocked)"
+  print_warning "Install grub and re-run this script, or switch to systemd-boot"
+  echo ""
+fi
+
+# ── Step 4: Verify which EFI files need signing ──────────────────────────────
 print_status "Checking EFI binaries for signing status..."
 echo ""
 sudo sbctl verify
 echo ""
 
-# ── Step 4: Sign all unsigned EFI binaries ───────────────────────────────────
+# ── Step 5: Sign all unsigned EFI binaries ───────────────────────────────────
 print_status "Signing all unsigned EFI binaries..."
 
 # Parse sbctl verify output: lines with ✗ contain unsigned files
@@ -106,7 +156,7 @@ fi
 
 echo ""
 
-# ── Step 5: Final verification ────────────────────────────────────────────────
+# ── Step 6: Final verification ────────────────────────────────────────────────
 print_status "Final verification:"
 sudo sbctl verify
 echo ""
