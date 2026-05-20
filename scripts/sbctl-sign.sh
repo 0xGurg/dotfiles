@@ -79,8 +79,17 @@ fi
 # ── Step 3: Reinstall GRUB without shim_lock module ──────────────────────────
 # The shim_lock module is baked into the GRUB core image by default. At boot
 # it looks for EFI_SHIM_LOCK_PROTOCOL (registered by shim.efi). Without shim
-# in the chain this hard-fails → "shim protocols not found" → kernel blocked.
-# --no-shim-lock rebuilds the core image without that module.
+# in the chain this hard-fails → "shim_lock protocol not found" → kernel blocked.
+#
+# --disable-shim-lock rebuilds the core image without that module.
+#
+# CRITICAL: Without shim_lock, GRUB has no verifier registered. When Secure Boot
+# is on, GRUB asks "does anyone want to verify this file?" and if nobody cares,
+# it refuses to load modules (normal.mod etc.) → rescue mode.
+# The --modules="tpm" flag embeds the TPM verifier in the core image. The TPM
+# verifier "cares" about verification requests and allows them through (it
+# measures files to the TPM but doesn't block them). This prevents the
+# "verification requested but nobody cares" error.
 if command -v grub-install &> /dev/null; then
   # Detect ESP mount point
   ESP_DIR=""
@@ -97,13 +106,14 @@ if command -v grub-install &> /dev/null; then
     exit 1
   fi
 
-  print_status "Reinstalling GRUB without shim_lock (--disable-shim-lock)..."
+  print_status "Reinstalling GRUB without shim_lock (--disable-shim-lock --modules=tpm)..."
   sudo grub-install \
     --target=x86_64-efi \
     --efi-directory="$ESP_DIR" \
     --bootloader-id=GRUB \
-    --disable-shim-lock
-  print_success "GRUB reinstalled to $ESP_DIR without shim_lock module"
+    --disable-shim-lock \
+    --modules="tpm"
+  print_success "GRUB reinstalled to $ESP_DIR without shim_lock module (tpm verifier embedded)"
   echo ""
 
   # Ensure rootflags=subvol=@ is set for Btrfs @ subvolume layouts
