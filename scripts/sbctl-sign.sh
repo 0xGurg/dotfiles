@@ -99,15 +99,27 @@ if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
   fi
 
   # Modules needed for Btrfs root + standard boot
+  # Note: efi_removable_file was removed in newer GRUB versions — omit it
   GRUB_MODULES="normal ext2 btrfs part_gpt cryptodisk luks gcry_rijndael argon2 \
 lvm fat ntfs hfsplus iso9660 loopback search search_fs_uuid search_label \
 search_file linux boot configfile memtest test loadenv echo sleep read \
 keystatus font gfxterm gfxmenu video video_fb vbe all_video efi_gop efi_uga \
 ls cat help halt reboot chain png jpeg tga regexp tr acpi"
 
+  # Filter out modules that don't exist on this system
+  GRUB_MOD_DIR="/usr/lib/grub/x86_64-efi"
+  FILTERED_MODULES=""
+  for mod in $GRUB_MODULES; do
+    if [[ -f "$GRUB_MOD_DIR/${mod}.mod" ]]; then
+      FILTERED_MODULES="$FILTERED_MODULES $mod"
+    else
+      print_warning "Module ${mod}.mod not found in $GRUB_MOD_DIR — skipping"
+    fi
+  done
+
   sudo grub-mkstandalone -O x86_64-efi \
     -o "$GRUB_EFI" \
-    --modules="$GRUB_MODULES" \
+    --modules="$FILTERED_MODULES" \
     "/boot/grub/grub.cfg=$GRUB_CFG"
 
   print_success "Standalone GRUB image built: $GRUB_EFI"
