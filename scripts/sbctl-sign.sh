@@ -128,7 +128,7 @@ if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
     exit 1
   fi
 
-  sudo grub-install --target=x86_64-efi --efi-directory="$ESP_DIR" --no-shim-lock --removable
+  sudo grub-install --target=x86_64-efi --efi-directory="$ESP_DIR" --no-shim-lock
   print_success "GRUB installed to $ESP_DIR with --no-shim-lock"
 
   # Now build the standalone image on top of the installed GRUB.
