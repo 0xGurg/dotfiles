@@ -109,31 +109,6 @@ if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
   print_status "Regenerating grub.cfg..."
   sudo grub-mkconfig -o "$GRUB_CFG"
 
-  # Re-install GRUB to the ESP with --no-shim-lock.
-  # This produces a grubx64.efi that doesn't try to use the shim lock
-  # protocol, which avoids the "shim lock verifier" error on Secure Boot.
-  # sbctl will sign the resulting binary directly.
-  print_status "Re-installing GRUB to ESP (with --no-shim-lock)..."
-  ESP_DIR=""
-  for esp in /efi /boot/efi; do
-    if [[ -d "$esp/EFI" ]]; then
-      ESP_DIR="$esp"
-      break
-    fi
-  done
-
-  if [[ -z "$ESP_DIR" ]]; then
-    print_error "Cannot find ESP mount point (checked /efi and /boot/efi)"
-    print_error "Make sure the ESP is mounted and re-run this script"
-    exit 1
-  fi
-
-  sudo grub-install --target=x86_64-efi --efi-directory="$ESP_DIR" --no-shim-lock
-  print_success "GRUB installed to $ESP_DIR with --no-shim-lock"
-
-  # Now build the standalone image on top of the installed GRUB.
-  # This embeds all modules into grubx64.efi so no runtime module loading.
-
   # Modules needed for Btrfs root + standard boot
   # Note: efi_removable_file was removed in newer GRUB versions — omit it
   # Note: zfs is excluded — only needed for ZFS root, and the .mod file
@@ -162,6 +137,15 @@ ls cat help halt reboot chain png jpeg tga regexp tr acpi"
     -o "$GRUB_EFI" \
     --modules="$FILTERED_MODULES" \
     "/boot/grub/grub.cfg=$GRUB_CFG"
+
+  # Strip the .note.gnu.property section from the standalone image.
+  # This section triggers the "shim lock verifier" error when Secure Boot
+  # verifies the binary directly (via sbctl) rather than through shim.
+  # Removing it makes the binary compatible with direct firmware verification.
+  if command -v objcopy &> /dev/null; then
+    print_status "Stripping .note.gnu.property section from GRUB image..."
+    sudo objcopy --remove-section .note.gnu.property "$GRUB_EFI" 2>/dev/null || true
+  fi
 
   print_success "Standalone GRUB image built: $GRUB_EFI"
 
