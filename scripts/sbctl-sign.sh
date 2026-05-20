@@ -92,11 +92,22 @@ done
 if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
   print_status "Building standalone GRUB image (embeds all modules for Secure Boot)..."
 
-  if [[ ! -f "$GRUB_CFG" ]]; then
-    print_warning "$GRUB_CFG not found — generating it first..."
-    sudo mkdir -p /boot/grub
-    sudo grub-mkconfig -o "$GRUB_CFG"
+  # Ensure /etc/default/grub has rootflags=subvol=<name> for Btrfs subvolumes.
+  # Without this, grub-mkconfig generates kernel paths that don't match the
+  # actual subvolume layout, causing "you need to load the kernel first" errors.
+  if findmnt -n -o OPTIONS / 2>/dev/null | grep -q 'subvol=@'; then
+    GRUB_DEFAULT="/etc/default/grub"
+    if [[ -f "$GRUB_DEFAULT" ]] && ! grep -q 'rootflags=subvol=@' "$GRUB_DEFAULT"; then
+      print_status "Adding rootflags=subvol=@ to GRUB_CMDLINE_LINUX..."
+      sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 rootflags=subvol=@\"|" "$GRUB_DEFAULT"
+      print_success "Added rootflags=subvol=@"
+    fi
   fi
+
+  # Always regenerate grub.cfg to pick up current kernel and rootflags
+  sudo mkdir -p /boot/grub
+  print_status "Regenerating grub.cfg..."
+  sudo grub-mkconfig -o "$GRUB_CFG"
 
   # Modules needed for Btrfs root + standard boot
   # Note: efi_removable_file was removed in newer GRUB versions — omit it
