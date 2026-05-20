@@ -13,10 +13,10 @@
 # GRUB + Secure Boot note:
 #   Arch's grub package embeds the shim_lock module in the GRUB core image.
 #   At boot, shim_lock looks for EFI_SHIM_LOCK_PROTOCOL (registered by shim.efi).
-#   Without shim in the chain, this hard-fails with "shim protocols not found"
+#   Without shim in the chain, this hard-fails with "shim_lock protocol not found"
 #   and GRUB refuses to load the kernel.
 #
-#   Fix: grub-install --no-shim-lock rebuilds the core image without shim_lock,
+#   Fix: grub-install --disable-shim-lock rebuilds the core image without shim_lock,
 #   so GRUB doesn't try to find shim at boot. sbctl then signs the result.
 # ============================================================================
 
@@ -97,12 +97,12 @@ if command -v grub-install &> /dev/null; then
     exit 1
   fi
 
-  print_status "Reinstalling GRUB without shim_lock (--no-shim-lock)..."
+  print_status "Reinstalling GRUB without shim_lock (--disable-shim-lock)..."
   sudo grub-install \
     --target=x86_64-efi \
     --efi-directory="$ESP_DIR" \
     --bootloader-id=GRUB \
-    --no-shim-lock
+    --disable-shim-lock
   print_success "GRUB reinstalled to $ESP_DIR without shim_lock module"
   echo ""
 
