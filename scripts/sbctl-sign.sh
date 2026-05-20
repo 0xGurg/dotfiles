@@ -11,10 +11,13 @@
 #     and booted back into Arch Linux (firmware is now in Setup Mode)
 #
 # GRUB + Secure Boot note:
-#   GRUB loads .mod files from disk at boot time, which Secure Boot blocks
-#   because they aren't signed EFI binaries. This script builds a standalone
-#   GRUB image (grub-mkstandalone) that embeds all modules into the single
-#   grubx64.efi binary, eliminating runtime module loading.
+#   Arch's grub package embeds the shim_lock module in the GRUB core image.
+#   At boot, shim_lock looks for EFI_SHIM_LOCK_PROTOCOL (registered by shim.efi).
+#   Without shim in the chain, this hard-fails with "shim protocols not found"
+#   and GRUB refuses to load the kernel.
+#
+#   Fix: grub-install --no-shim-lock rebuilds the core image without shim_lock,
+#   so GRUB doesn't try to find shim at boot. sbctl then signs the result.
 # ============================================================================
 
 set -e
@@ -63,8 +66,6 @@ sbctl status
 echo ""
 
 # ── Step 2: Enroll keys (only if still in Setup Mode) ────────────────────────
-# "Setup Mode: ✓ Disabled" = keys already enrolled, skip
-# "Setup Mode: ✗ Enabled"  = firmware is ready, enroll now
 if sbctl status 2>&1 | grep -q "Setup Mode:.*Enabled"; then
   print_status "Enrolling Secure Boot keys (including Microsoft keys for hardware compatibility)..."
   sudo sbctl enroll-keys -m
@@ -75,28 +76,39 @@ else
   echo ""
 fi
 
-# ── Step 3: Build standalone GRUB image (if using GRUB) ──────────────────────
-# GRUB loads .mod files from disk at boot, which Secure Boot blocks.
-# grub-mkstandalone embeds all modules into a single EFI binary.
-GRUB_CFG="/boot/grub/grub.cfg"
-GRUB_EFI=""
+# ── Step 3: Reinstall GRUB without shim_lock module ──────────────────────────
+# The shim_lock module is baked into the GRUB core image by default. At boot
+# it looks for EFI_SHIM_LOCK_PROTOCOL (registered by shim.efi). Without shim
+# in the chain this hard-fails → "shim protocols not found" → kernel blocked.
+# --no-shim-lock rebuilds the core image without that module.
+if command -v grub-install &> /dev/null; then
+  # Detect ESP mount point
+  ESP_DIR=""
+  for esp in /efi /boot/efi; do
+    if [[ -d "$esp/EFI" ]]; then
+      ESP_DIR="$esp"
+      break
+    fi
+  done
 
-# Detect GRUB EFI binary location
-for candidate in /efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/GRUB/grubx64.efi; do
-  if [[ -f "$candidate" ]]; then
-    GRUB_EFI="$candidate"
-    break
+  if [[ -z "$ESP_DIR" ]]; then
+    print_error "Cannot find ESP mount point (checked /efi and /boot/efi)"
+    print_error "Make sure the ESP is mounted and re-run this script"
+    exit 1
   fi
-done
 
-if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
-  print_status "Building standalone GRUB image (embeds all modules for Secure Boot)..."
+  print_status "Reinstalling GRUB without shim_lock (--no-shim-lock)..."
+  sudo grub-install \
+    --target=x86_64-efi \
+    --efi-directory="$ESP_DIR" \
+    --bootloader-id=GRUB \
+    --no-shim-lock
+  print_success "GRUB reinstalled to $ESP_DIR without shim_lock module"
+  echo ""
 
-  # Ensure /etc/default/grub has rootflags=subvol=<name> for Btrfs subvolumes.
-  # Without this, grub-mkconfig generates kernel paths that don't match the
-  # actual subvolume layout, causing "you need to load the kernel first" errors.
+  # Ensure rootflags=subvol=@ is set for Btrfs @ subvolume layouts
+  GRUB_DEFAULT="/etc/default/grub"
   if findmnt -n -o OPTIONS / 2>/dev/null | grep -q 'subvol=@'; then
-    GRUB_DEFAULT="/etc/default/grub"
     if [[ -f "$GRUB_DEFAULT" ]] && ! grep -q 'rootflags=subvol=@' "$GRUB_DEFAULT"; then
       print_status "Adding rootflags=subvol=@ to GRUB_CMDLINE_LINUX..."
       sudo sed -i "s|^GRUB_CMDLINE_LINUX=\"\(.*\)\"|GRUB_CMDLINE_LINUX=\"\1 rootflags=subvol=@\"|" "$GRUB_DEFAULT"
@@ -104,79 +116,27 @@ if [[ -n "$GRUB_EFI" ]] && command -v grub-mkstandalone &> /dev/null; then
     fi
   fi
 
-  # Always regenerate grub.cfg to pick up current kernel and rootflags
+  # Regenerate grub.cfg
   sudo mkdir -p /boot/grub
   print_status "Regenerating grub.cfg..."
-  sudo grub-mkconfig -o "$GRUB_CFG"
-
-  # Modules needed for Btrfs root + standard boot
-  # Note: efi_removable_file was removed in newer GRUB versions — omit it
-  # Note: zfs is excluded — only needed for ZFS root, and the .mod file
-  #       on some systems is corrupt/truncated, which breaks the standalone image
-  GRUB_MODULES="normal ext2 btrfs part_gpt cryptodisk luks gcry_rijndael argon2 \
-lvm fat ntfs hfsplus iso9660 loopback search search_fs_uuid search_label \
-search_file linux boot configfile memtest test loadenv echo sleep read \
-keystatus font gfxterm gfxmenu video video_fb vbe all_video efi_gop efi_uga \
-ls cat help halt reboot chain png jpeg tga regexp tr acpi"
-
-  # Filter out modules that don't exist or are corrupt on this system
-  GRUB_MOD_DIR="/usr/lib/grub/x86_64-efi"
-  FILTERED_MODULES=""
-  for mod in $GRUB_MODULES; do
-    mod_file="$GRUB_MOD_DIR/${mod}.mod"
-    if [[ ! -f "$mod_file" ]]; then
-      print_warning "Module ${mod}.mod not found in $GRUB_MOD_DIR — skipping"
-    elif [[ "$(stat -c%s "$mod_file" 2>/dev/null || stat -f%z "$mod_file" 2>/dev/null)" -lt 4 ]]; then
-      print_warning "Module ${mod}.mod is empty or corrupt — skipping"
-    else
-      FILTERED_MODULES="$FILTERED_MODULES $mod"
-    fi
-  done
-
-  sudo grub-mkstandalone -O x86_64-efi \
-    -o "$GRUB_EFI" \
-    --modules="$FILTERED_MODULES" \
-    "/boot/grub/grub.cfg=$GRUB_CFG"
-
-  # Strip the .note.gnu.property section from the standalone image.
-  # This section triggers the "shim lock verifier" error when Secure Boot
-  # verifies the binary directly (via sbctl) rather than through shim.
-  # Removing it makes the binary compatible with direct firmware verification.
-  if command -v objcopy &> /dev/null; then
-    print_status "Stripping .note.gnu.property section from GRUB image..."
-    sudo objcopy --remove-section .note.gnu.property "$GRUB_EFI" 2>/dev/null || true
-  fi
-
-  print_success "Standalone GRUB image built: $GRUB_EFI"
-
-  # Sign the new binary immediately — grub-mkstandalone creates an unsigned
-  # file and sbctl verify may not pick it up if it's not in the database yet
-  print_status "Signing standalone GRUB image..."
-  sudo sbctl sign -s "$GRUB_EFI"
-  print_success "Signed: $GRUB_EFI"
+  sudo grub-mkconfig -o /boot/grub/grub.cfg
+  print_success "grub.cfg regenerated"
   echo ""
-elif [[ -n "$GRUB_EFI" ]]; then
-  print_warning "grub-mkstandalone not found — cannot build standalone GRUB image"
-  print_warning "GRUB may fail to boot with Secure Boot enabled (module loading blocked)"
-  print_warning "Install grub and re-run this script, or switch to systemd-boot"
-  echo ""
+else
+  print_warning "grub-install not found — skipping GRUB reinstall"
 fi
 
-# ── Step 4: Verify which EFI files need signing ──────────────────────────────
+# ── Step 4: Sign EFI binaries ─────────────────────────────────────────────────
 print_status "Checking EFI binaries for signing status..."
 echo ""
 sudo sbctl verify
 echo ""
 
-# ── Step 5: Sign all unsigned EFI binaries ───────────────────────────────────
 print_status "Signing all unsigned EFI binaries..."
 
-# Parse sbctl verify output: lines with ✗ contain unsigned files
-# Extract the absolute path (starts with /) — avoids awk $NF fragility across output format changes
 mapfile -t UNSIGNED < <(sudo sbctl verify 2>/dev/null | grep -E '^\s*✗' | grep -oE '/[^[:space:]]+')
 
-# Also check common GRUB locations that sbctl verify may miss
-# (with ESP at /efi, sbctl may not scan it depending on mount order)
+# Explicitly check GRUB binary in case sbctl verify doesn't find it
 for candidate in /efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/GRUB/grubx64.efi; do
   if [[ -f "$candidate" ]] && ! sudo sbctl verify 2>/dev/null | grep -q "$candidate"; then
     UNSIGNED+=("$candidate")
@@ -197,6 +157,16 @@ else
   done
 fi
 
+# ── Step 5: Sign the kernel ───────────────────────────────────────────────────
+# Without shim_lock, GRUB performs no kernel verification. Sign the kernel
+# so the sbctl pacman hook re-signs it automatically after updates.
+print_status "Signing kernel(s)..."
+for kernel in /boot/vmlinuz-linux /boot/vmlinuz-linux-lts /boot/vmlinuz-linux-zen; do
+  if [[ -f "$kernel" ]]; then
+    sudo sbctl sign -s "$kernel"
+    print_success "Signed: $kernel"
+  fi
+done
 echo ""
 
 # ── Step 6: Final verification ────────────────────────────────────────────────
@@ -204,7 +174,6 @@ print_status "Final verification:"
 sudo sbctl verify
 echo ""
 
-# Check if any unsigned files remain
 REMAINING=$(sudo sbctl verify 2>/dev/null | grep -cE '^\s*✗' || true)
 if [[ "$REMAINING" -gt 0 ]]; then
   print_warning "$REMAINING file(s) still unsigned — review the output above"
@@ -218,8 +187,7 @@ echo "                    ✅  Secure Boot Ready                        "
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 print_info "Secure Boot is configured. On next boot, UEFI will enforce signed binaries."
-print_info "The -s flag saves each file path so sbctl re-signs them automatically"
-print_info "after kernel updates via the pacman hook."
+print_info "The -s flag saves each path so sbctl re-signs automatically after updates."
 echo ""
 print_status "Reboot to activate Secure Boot. Press Enter to reboot (or Ctrl-C to cancel)..."
 read -r
