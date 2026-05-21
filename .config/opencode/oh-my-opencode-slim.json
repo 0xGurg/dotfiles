@@ -93,7 +93,7 @@
     },
     "free-mix": {
       "orchestrator": {
-        "model": "opencode-go/glm-5.1",
+        "model": "opencode-go/deepseek-v4-pro",
         "variant": "max",
         "skills": ["*"],
         "mcps": ["*", "!context7"]
