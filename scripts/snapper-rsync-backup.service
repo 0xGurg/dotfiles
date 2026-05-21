@@ -1,0 +1,9 @@
+[Unit]
+Description=Rsync latest snapper snapshot to /srv/data
+After=snapper-timeline.timer
+
+[Service]
+Type=oneshot
+ExecStart=/home/gurg/dotfiles/scripts/snapper-rsync-backup.sh
+Nice=19
+IOSchedulingClass=idle

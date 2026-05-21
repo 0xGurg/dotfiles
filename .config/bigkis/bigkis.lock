@@ -1,0 +1,205 @@
+schema_version = 1
+generated_at   = "2026-05-21T06:45:02Z"
+
+[pacman.atuin]
+version = "18.16.1-1"
+
+[pacman.base]
+version = "3-3"
+
+[pacman.base-devel]
+version = "1-2"
+
+[pacman.bat]
+version = "0.26.1-2"
+
+[pacman.bitwarden]
+version = "2026.2.1-1"
+
+[pacman.bitwarden-cli]
+version = "2026.2.0-1"
+
+[pacman.bluez]
+version = "5.86-6"
+
+[pacman.bluez-utils]
+version = "5.86-6"
+
+[pacman.btop]
+version = "1.4.7-1"
+
+[pacman.btrfs-progs]
+version = "7.0-1"
+
+[pacman.cifs-utils]
+version = "7.5-1"
+
+[pacman.cmake]
+version = "4.3.2-1"
+
+[pacman.efibootmgr]
+version = "18-4"
+
+[pacman.fastfetch]
+version = "2.63.1-1"
+
+[pacman.flatpak]
+version = "1:1.16.6-1"
+
+[pacman.fnm]
+version = "1.39.0-1"
+
+[pacman.ghostty]
+version = "1.3.1-2"
+
+[pacman.git]
+version = "2.54.0-1"
+
+[pacman.grub]
+version = "2:2.14-1"
+
+[pacman.grub-btrfs]
+version = "4.14-1"
+
+[pacman.hyprland]
+version = "0.55.2-1"
+
+[pacman.inotify-tools]
+version = "4.25.9.0-1"
+
+[pacman.intel-media-driver]
+version = "26.1.5-1"
+
+[pacman.intel-ucode]
+version = "20260512-1"
+
+[pacman.iwd]
+version = "3.12-1"
+
+[pacman.jq]
+version = "1.8.1-3"
+
+[pacman.lazygit]
+version = "0.61.1-1"
+
+[pacman.linux]
+version = "7.0.9.arch1-1"
+
+[pacman.linux-firmware]
+version = "20260410-1"
+
+[pacman.neovim]
+version = "0.12.2-1"
+
+[pacman.noto-fonts]
+version = "1:2026.05.01-1"
+
+[pacman.noto-fonts-cjk]
+version = "20240730-1"
+
+[pacman.nvidia-open]
+version = "595.71.05-10"
+
+[pacman.nvidia-utils]
+version = "595.71.05-2"
+
+[pacman.ollama]
+version = "0.24.0-1"
+
+[pacman.opencode]
+version = "1.15.4-1"
+
+[pacman.openssh]
+version = "10.3p1-1"
+
+[pacman.pipewire]
+version = "1:1.6.5-1"
+
+[pacman.pipewire-alsa]
+version = "1:1.6.5-1"
+
+[pacman.pipewire-pulse]
+version = "1:1.6.5-1"
+
+[pacman.pnpm]
+version = "10.33.4-1"
+
+[pacman.rclone]
+version = "1.74.1-1"
+
+[pacman.ripgrep]
+version = "15.1.0-2"
+
+[pacman.rsync]
+version = "3.4.3-1"
+
+[pacman.sbctl]
+version = "0.18-1"
+
+[pacman.shfmt]
+version = "3.13.1-1"
+
+[pacman.snapper]
+version = "0.13.1-2"
+
+[pacman.starship]
+version = "1.25.1-1"
+
+[pacman.steam]
+version = "1.0.0.85-6"
+
+[pacman.stow]
+version = "2.4.1-1"
+
+[pacman.sudo]
+version = "1.9.17.p2-2"
+
+[pacman.ttf-hack-nerd]
+version = "3.4.0-2"
+
+[pacman.ttf-jetbrains-mono-nerd]
+version = "3.4.0-2"
+
+[pacman.ufw]
+version = "0.36.2-7"
+
+[pacman.vulkan-intel]
+version = "1:26.0.6-1"
+
+[pacman.wireguard-tools]
+version = "1.0.20260223-1"
+
+[pacman.wireplumber]
+version = "0.5.14-1"
+
+[pacman.xdg-desktop-portal-hyprland]
+version = "1.3.12-2"
+
+[pacman.zoxide]
+version = "0.9.9-2"
+
+[pacman.zram-generator]
+version = "1.2.1-1"
+
+[pacman.zsh]
+version = "5.9-6"
+
+[pacman.zsh-autosuggestions]
+version = "0.7.1-1"
+
+[pacman.zsh-syntax-highlighting]
+version = "0.8.0-2"
+
+[aur.bigkis-bin]
+version = "0.6.2-1"
+
+[aur.brave-bin]
+version = "1:1.90.124-1"
+
+[aur.zapzap]
+version = "6.4.2-1"
+
+[flatpak."com.spotify.Client"]
+version = "1.2.84.475.ga1a748ff"
+commit  = "b69b319989fd80dfd81d6dc97efa585d4e11102fb7068f6c2a86b98ef91b536c"
+

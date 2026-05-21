@@ -68,6 +68,10 @@ packages = [
   "rclone",
   "cifs-utils",
   "btrfs-progs",
+  "snapper",
+  "grub-btrfs",
+  "inotify-tools",
+  "rsync",
 
   # Fonts
   "ttf-hack-nerd",

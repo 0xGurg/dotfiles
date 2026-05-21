@@ -1,6 +1,6 @@
 # Arch Rebuild and Phase 2 NAS Plan
 
-> Last updated: 2026-05-05
+> Last updated: 2026-05-21
 
 ## Final Decisions
 
@@ -59,7 +59,7 @@ Recommended Btrfs subvolumes:
 
 - `@` → `/`
 - `@home` → `/home`
-- `@var_log` → `/var/log`
+- `@log` → `/var/log`
 - `@pkg` → `/var/cache/pacman/pkg`
 
 Recommended mount options:
@@ -77,7 +77,7 @@ Recommended layout:
 
 - GPT
 - one Btrfs partition using the whole disk
-- default mountpoint: `/srv/local`
+- default mountpoint: `/srv/data`
 
 Optional later subvolumes on `sda`:
 
@@ -140,7 +140,7 @@ Recommended post-install snapshot layout:
 - `@` → `/`
 - `@home` → `/home`
 - `@snapshots` → `/.snapshots`
-- `@var_log` → `/var/log`
+- `@log` → `/var/log`
 - `@pkg` → `/var/cache/pacman/pkg`
 
 Maintenance note:
@@ -206,6 +206,94 @@ Important note:
 
 - The old system used `systemd-boot`, but the new plan uses `grub`.
 - Before re-enabling Secure Boot, confirm that the scripts are signing the actual GRUB EFI binary found by `sbctl verify`.
+
+### Phase 1 Completion Status
+
+All Phase 1 items are done:
+
+- ✅ Arch reinstalled with `archinstall`, `grub`, `btrfs`, no LUKS
+- ✅ Btrfs subvolumes: `@` → `/`, `@home` → `/home`, `@log` → `/var/log`, `@pkg` → `/var/cache/pacman/pkg`
+- ✅ ESP at `/efi` (1G FAT32)
+- ✅ zram active (4G zstd)
+- ✅ Secure Boot enabled with custom keys (sbctl), all EFI binaries signed
+- ✅ `sda1` mounted at `/srv/data` (btrfs, separate from root)
+- ✅ Snapper configured with timeline/cleanup timers
+- ✅ grub-btrfs installed for snapshot boot menu entries
+- ✅ ESP cleaned up — no stale systemd-boot, BOOTX64, or standalone images
+
+Actual subvolume names differ slightly from the original plan (`@log` instead of `@var_log`). This is cosmetic and has no functional impact.
+
+### Backup Setup
+
+#### What is backed up
+
+The latest snapper snapshot of `/` is rsynced to `/srv/data/snapper-backup/` on the HDD. This protects against NVMe failure — the HDD holds a full, browsable, file-level copy of the root filesystem.
+
+#### How it works
+
+- **Script**: `scripts/snapper-rsync-backup.sh`
+- **Schedule**: daily at 03:00 via systemd timer (`snapper-rsync-backup.timer`)
+- **Method**: `rsync -aHAXS --delete --link-dest=<previous>`
+  - `--link-dest` makes each backup appear as a full copy but only stores diffs (unchanged files are hardlinked)
+  - Each backup directory is a complete, browsable tree — no special tools needed to restore individual files
+- **Retention**: keeps the last 10 backups on HDD, prunes older ones
+- **IO priority**: `IOSchedulingClass=idle` so backups don't compete with real work
+
+#### Directory structure on HDD
+
+```
+/srv/data/snapper-backup/
+├── 20260521-100500/    ← first backup (full copy)
+├── 20260522-030012/    ← only diffs (hardlinks for the rest)
+├── 20260523-030008/    ← only diffs
+...
+```
+
+#### Snapper snapshot schedule
+
+| Timer | Schedule | Purpose |
+|---|---|---|
+| `snapper-timeline.timer` | Hourly | Creates snapshots |
+| `snapper-cleanup.timer` | Hourly | Prunes old snapshots |
+
+Snapshot retention on NVMe:
+
+| Type | Limit |
+|---|---|
+| Hourly | 8 |
+| Daily | 7 |
+| Weekly | 0 |
+| Monthly | 3 |
+| Yearly | 0 |
+
+Long-term retention is handled by the HDD rsync backups, not by keeping many NVMe snapshots.
+
+#### What the backup protects
+
+- ✅ All files, configs, dotfiles in the root subvolume
+- ✅ Browsable at any time — just `ls /srv/data/snapper-backup/<timestamp>/`
+- ✅ Individual file recovery: `cp` or `rsync` from the backup
+- ✅ Full system recovery after NVMe replacement (see below)
+
+#### What the backup does NOT protect
+
+- ❌ Installed packages — need `bigkis apply` to reinstall
+- ❌ Bootloader/EFI state — need `grub-install` after bare-metal restore
+- ❌ `/home` — only the root subvolume is snapshotted and backed up (add a home snapper config later if needed)
+
+#### Bare-metal recovery after NVMe failure
+
+1. Install a new NVMe.
+2. Reinstall Arch with the same layout (btrfs, grub, subvolumes).
+3. Restore from HDD:
+   ```bash
+   mount /dev/nvme0n1p2 /mnt -o subvol=/@
+   rsync -aHAXS --delete /srv/data/snapper-backup/<latest>/ /mnt/
+   arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/efi
+   arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+   ```
+4. Reboot — system is back to the state of the last backup.
+5. Reinstall packages: `sudo bigkis apply --config ~/.config/bigkis/system.toml`
 
 ---
 
@@ -415,9 +503,10 @@ Given this machine class, a powered external enclosure / DAS may still be safer 
 
 ## Immediate Next Actions
 
-1. Reinstall Arch with the Phase 1 layout above.
-2. Get the new GRUB + Btrfs system stable.
-3. Re-enable zram and set up Snapper.
-4. Use the existing `sbctl` scripts in this repo to re-sign and re-enable Secure Boot.
+1. ~~Reinstall Arch with the Phase 1 layout above.~~ ✅
+2. ~~Get the new GRUB + Btrfs system stable.~~ ✅
+3. ~~Re-enable zram and set up Snapper.~~ ✅
+4. ~~Use the existing `sbctl` scripts in this repo to re-sign and re-enable Secure Boot.~~ ✅
 5. Decide the exact parity drive models for Phase 2.
 6. Only after that, choose the final enclosure / adapter path for the future HDD pool.
+7. Consider adding a home snapper config for `/home` backup coverage.
