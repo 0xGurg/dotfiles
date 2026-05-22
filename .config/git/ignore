@@ -1,1 +1,19 @@
+# Claude
 **/.claude/settings.local.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets safety net
+*.pem
+*.key
+*.p12
+.env.local

@@ -26,3 +26,20 @@
 [merge]
 	conflictstyle = zdiff3
 
+[transfer]
+	fsckObjects = true
+
+[fetch]
+	fsckObjects = true
+
+[receive]
+	fsckObjects = true
+
+[commit]
+	gpgsign = true
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	defaultKeyCommand = ssh-add -L

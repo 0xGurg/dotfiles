@@ -24,4 +24,5 @@ hosts:
         git_protocol: https
 YAML
 
+chmod 600 "$CONFIG_FILE"
 echo "✓ fgj config rebuilt from .env"

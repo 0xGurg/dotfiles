@@ -15,6 +15,7 @@ setup_env() {
   fi
 
   cp "$DOTFILES_DIR/.env.tmpl" "$DOTFILES_DIR/.env"
+  chmod 600 "$DOTFILES_DIR/.env"
   print_success "Created .env from .env.tmpl"
   print_warning "Edit ~/dotfiles/.env and fill in your secrets before using OpenCode"
   print_warning "Or run: python3 ~/dotfiles/scripts/inject-secrets.py (if using Bitwarden)"

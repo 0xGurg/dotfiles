@@ -10,6 +10,11 @@ esac
 # SHELL OPTIONS
 # ============================================================================
 setopt AUTO_CD
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+HISTSIZE=10000
+SAVEHIST=10000
 
 # ============================================================================
 # ENVIRONMENT VARIABLES
@@ -46,7 +51,6 @@ alias ..="z .."
 alias ...="z ../.."
 alias ....="z ../../.."
 alias -- -="z -"
-alias rmd="rm -rf"
 
 # Editor
 alias nv="nvim"
@@ -116,9 +120,26 @@ bindkey jj vi-cmd-mode
 # Kill process on specific port
 killport() {
   if [[ "$OS" == "macos" ]]; then
-    lsof -ti:$1 | xargs kill -9
+    lsof -ti:"$1" | xargs kill -9
   else
     fuser -k "$1"/tcp 2>/dev/null
+  fi
+}
+
+# Safe recursive delete with confirmation
+unalias rmd 2>/dev/null
+rmd() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: rmd <path> [path...]"
+    return 1
+  fi
+  echo "Will permanently delete:"
+  printf '  %s\n' "$@"
+  if read -q "REPLY?Are you sure? (y/N) "; then
+    echo ""
+    rm -rf "$@"
+  else
+    echo -e "\nAborted."
   fi
 }
 

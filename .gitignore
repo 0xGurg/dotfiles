@@ -45,3 +45,13 @@ wg0.conf
 
 # Sayang app (separate repo)
 sayang/
+
+# Catch-all: private keys and certs
+*.pem
+*.key
+*.p12
+
+# Node (all nested)
+**/node_modules/
+**/package-lock.json
+**/pnpm-lock.yaml
