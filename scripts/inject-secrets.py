@@ -15,7 +15,9 @@ Usage:
 
 import json
 import os
+import re
 import shutil
+import socket
 import subprocess
 import sys
 from pathlib import Path
@@ -182,15 +184,21 @@ def inject_secrets(session, config):
         content = tmpl.read_text()
         for key, val in values.items():
             content = content.replace(f"{{{{{key}}}}}", val)
+        
+        remaining = re.findall(r'\{\{(\w+)\}\}', content)
+        if remaining:
+            warning(f"Unresolved placeholders in {tmpl}: {', '.join(remaining)}")
+            
         output = tmpl.with_suffix("")
         output.write_text(content)
+        output.chmod(0o600)
         success(f"Rendered: {output}")
 
     success("All templates rendered")
     return True
 
 
-def inject_ssh(session, config):
+def inject_ssh(session, config, hostname):
     status("Restoring SSH keys from Bitwarden...")
 
     ssh_dir = Path.home() / ".ssh"
@@ -201,9 +209,16 @@ def inject_ssh(session, config):
     for entry in config.get("ssh_keys", []):
         if isinstance(entry, str):
             bw_name = filename = entry
+            allowed_hosts = None
         else:
             bw_name = entry["bw_item"]
             filename = entry["filename"]
+            allowed_hosts = entry.get("hosts")
+
+        # Skip keys restricted to other hosts
+        if allowed_hosts and hostname not in allowed_hosts:
+            status(f"Skipping {filename} (host '{hostname}' not in {allowed_hosts})")
+            continue
 
         item = bw_get_item(bw_name, session)
         if not item:
@@ -258,13 +273,15 @@ def main():
 
     config = read_config()
     session = ensure_session()
+    hostname = socket.gethostname()
+    status(f"Detected hostname: {hostname}")
 
     status("Syncing Bitwarden vault...")
     bw_run("sync", "--session", session)
     success("Vault synced")
 
     inject_secrets(session, config)
-    inject_ssh(session, config)
+    inject_ssh(session, config, hostname)
 
     print()
     success("All secrets injected!")
