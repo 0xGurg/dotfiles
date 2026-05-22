@@ -1,8 +1,8 @@
 ---
-name: reviewer-qwen
-description: Generic code reviewer. Invoke after @fixer completes implementation to catch anti-patterns, missing tests, and edge cases. Uses OpenCode Qwen3.6 Plus free for a second opinion.
+name: reviewer-primary
+description: Generic code reviewer. Invoke after @fixer completes implementation to catch anti-patterns, missing tests, and edge cases. Uses a free Zen reviewer model for a first independent review pass.
 mode: subagent
-model: opencode/qwen3.6-plus-free
+model: opencode/deepseek-v4-flash-free
 permission:
   edit: deny
 ---
@@ -60,7 +60,7 @@ Read the test files for the implemented code. Verify:
 ```
 ## Review — [component]
 
-Reviewer: @reviewer-qwen
+Reviewer: @reviewer-primary
 
 ### 🔴 Critical
 ...

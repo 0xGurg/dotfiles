@@ -9,8 +9,8 @@ description: Use when implementing, reviewing, or fixing Bubble Tea TUI phases i
 
 After @fixer completes any TUI implementation work, the orchestrator MUST invoke both reviewers in parallel before marking the phase done:
 
-1. `@reviewer-minimax` (opencode/minimax-m2.5-free)
-2. `@reviewer-qwen` (opencode/qwen3.6-plus-free)
+1. `@reviewer-primary` (free Zen DeepSeek flash)
+2. `@reviewer-secondary` (free Zen Big Pickle)
 
 Both are read-only subagents that check the same criteria independently. Compare their findings. If either flags a critical issue, fix it before proceeding.
 
@@ -31,7 +31,7 @@ These rules are derived from past findings. Apply them during implementation, no
 1. Write a short phase spec (existing behavior, new behavior, error states, empty states, flags impacted, tests required)
 2. Have @oracle review the spec if the phase is risky
 3. Implement with @fixer
-4. Invoke @reviewer-minimax AND @reviewer-qwen in parallel
+4. Invoke @reviewer-primary AND @reviewer-secondary in parallel
 5. Fix any critical or medium findings
 6. Update `findings.md` with review results
 7. Only then move to the next phase

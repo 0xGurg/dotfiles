@@ -38,6 +38,7 @@ fi
 alias cl="clear"
 alias ff="fastfetch"
 alias q="exit"
+alias setup="$HOME/dotfiles/scripts/setup.sh"
 alias sz="source ~/.zshrc"
 
 # Directory Navigation (zoxide: use `z` for smart cd, `zi` for interactive)
@@ -51,6 +52,10 @@ alias rmd="rm -rf"
 alias nv="nvim"
 alias nvh="nvim ."
 [[ "$OS" == "macos" ]] && alias nvhc="$HOME/dotfiles/scripts/nvhc.sh"
+
+# OpenCode
+alias oc="opencode"
+alias occ="opencode -c"
 
 # Secrets
 alias ssh-sync="python3 $HOME/dotfiles/scripts/inject-secrets.py"

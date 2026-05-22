@@ -1,77 +1,35 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "free-mix",
+  "preset": "opencode-mix",
   "disabled_agents": [],
   "presets": {
-    "openai": {
+    "opencode-mix": {
       "orchestrator": {
-        "model": "openai/gpt-5.5",
+        "model": "opencode-go/deepseek-v4-pro",
+        "variant": "max",
         "skills": ["*"],
         "mcps": ["*", "!context7"]
       },
       "oracle": {
         "model": "openai/gpt-5.5",
         "variant": "high",
-        "skills": ["simplify"],
-        "mcps": []
-      },
-      "librarian": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
-      },
-      "explorer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      },
-      "designer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "medium",
-        "skills": ["agent-browser"],
-        "mcps": []
-      },
-      "fixer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      }
-    },
-    "opencode-go": {
-      "orchestrator": {
-        "model": "opencode-go/glm-5.1",
-        "skills": ["*"],
-        "mcps": ["*", "!context7"]
-      },
-      "oracle": {
-        "model": "opencode-go/deepseek-v4-pro",
-        "variant": "max",
         "skills": ["simplify"],
         "mcps": []
       },
       "council": {
-        "model": "opencode-go/deepseek-v4-pro",
-        "variant": "high",
+        "model": "opencode-go/glm-5.1",
         "skills": [],
         "mcps": []
       },
       "librarian": {
-        "model": "opencode-go/minimax-m2.7",
+        "model": "github-copilot/claude-haiku-4.5",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "grep_app", "brave-search"]
       },
       "explorer": {
-        "model": "opencode-go/minimax-m2.7",
+        "model": "github-copilot/claude-haiku-4.5",
         "skills": [],
         "mcps": []
-      },
-      "scout": {
-        "model": "opencode-go/kimi-k2.6",
-        "skills": [],
-        "mcps": ["websearch", "context7"]
       },
       "designer": {
         "model": "opencode-go/kimi-k2.6",
@@ -86,26 +44,35 @@
         "mcps": []
       },
       "observer": {
-        "model": "opencode-go/qwen3.6-plus",
+        "model": "opencode-go/kimi-k2.6",
+        "skills": [],
+        "mcps": []
+      },
+      "reviewer-primary": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "skills": [],
+        "mcps": []
+      },
+      "reviewer-secondary": {
+        "model": "opencode/big-pickle",
         "skills": [],
         "mcps": []
       }
     },
-    "free-mix": {
+    "openai-mix": {
       "orchestrator": {
-        "model": "opencode-go/deepseek-v4-pro",
-        "variant": "max",
+        "model": "openai/gpt-5.3-codex",
         "skills": ["*"],
         "mcps": ["*", "!context7"]
       },
       "oracle": {
-        "model": "opencode-go/glm-5.1",
-        "variant": "max",
+        "model": "openai/gpt-5.5",
+        "variant": "high",
         "skills": ["simplify"],
         "mcps": []
       },
       "council": {
-        "model": "opencode-go/qwen3.6-plus",
+        "model": "openai/gpt-5.4",
         "variant": "high",
         "skills": [],
         "mcps": []
@@ -116,19 +83,19 @@
         "mcps": ["websearch", "context7", "grep_app", "brave-search"]
       },
       "explorer": {
-        "model": "opencode/minimax-m2.5-free",
-        "variant": "low",
+        "model": "github-copilot/claude-haiku-4.5",
         "skills": [],
         "mcps": []
       },
       "designer": {
-        "model": "opencode-go/kimi-k2.6",
+        "model": "openai/gpt-5.4",
         "variant": "medium",
         "skills": ["agent-browser"],
         "mcps": []
       },
       "fixer": {
-        "model": "opencode-go/deepseek-v4-flash",
+        "model": "openai/gpt-5.4-mini",
+        "variant": "low",
         "skills": [],
         "mcps": []
       },
@@ -137,25 +104,25 @@
         "skills": [],
         "mcps": []
       },
-      "reviewer-minimax": {
-        "model": "opencode/minimax-m2.5-free",
+      "reviewer-primary": {
+        "model": "opencode/deepseek-v4-flash-free",
         "skills": [],
         "mcps": []
       },
-      "reviewer-qwen": {
-        "model": "opencode/qwen3.6-plus-free",
+      "reviewer-secondary": {
+        "model": "opencode/big-pickle",
         "skills": [],
         "mcps": []
       }
     }
   },
   "council": {
-    "default_preset": "free-mix",
+    "default_preset": "free-pool",
     "presets": {
-      "free-mix": {
-        "copilot": { "model": "github-copilot/gpt-4.1" },
-        "qwen": { "model": "opencode/qwen3.6-plus-free" },
-        "minimax": { "model": "opencode/minimax-m2.5-free" },
+      "free-pool": {
+        "copilot": { "model": "github-copilot/claude-haiku-4.5" },
+        "gpt-mini": { "model": "github-copilot/gpt-5-mini" },
+        "zen-flash": { "model": "opencode/deepseek-v4-flash-free" },
         "big-pickle": { "model": "opencode/big-pickle" }
       }
     },
@@ -168,10 +135,16 @@
     "timeoutMs": 60000,
     "retryDelayMs": 500,
     "chains": {
-      "oracle": ["opencode/big-pickle"],
-      "fixer": ["opencode/deepseek-v4-flash-free", "github-copilot/claude-haiku-4.5"],
-      "librarian": ["opencode/deepseek-v4-flash-free"],
-      "explorer": ["opencode/big-pickle", "opencode/deepseek-v4-flash-free"]
+      "orchestrator": ["opencode-go/glm-5.1", "openai/gpt-5.3-codex", "openai/gpt-5.4", "opencode/big-pickle"],
+      "oracle": ["opencode-go/deepseek-v4-pro", "openai/gpt-5.4", "opencode/big-pickle"],
+      "council": ["github-copilot/gpt-4.1", "opencode/big-pickle"],
+      "librarian": ["github-copilot/gpt-4.1", "opencode/deepseek-v4-flash-free", "opencode/big-pickle"],
+      "explorer": ["github-copilot/gpt-4.1", "opencode/deepseek-v4-flash-free", "opencode/big-pickle"],
+      "designer": ["opencode-go/kimi-k2.6", "github-copilot/claude-haiku-4.5", "opencode/big-pickle"],
+      "fixer": ["opencode/deepseek-v4-flash-free", "github-copilot/claude-haiku-4.5", "opencode/big-pickle"],
+      "observer": ["opencode/big-pickle", "opencode/nemotron-3-super-free"],
+      "reviewer-primary": ["opencode/big-pickle", "opencode/nemotron-3-super-free"],
+      "reviewer-secondary": ["opencode/deepseek-v4-flash-free", "opencode/nemotron-3-super-free"]
     }
   }
 }

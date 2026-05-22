@@ -1,8 +1,8 @@
 ---
-name: reviewer-minimax
-description: Generic code reviewer. Invoke after @fixer completes implementation to catch anti-patterns, missing tests, and edge cases. Uses OpenCode Zen MiniMax M2.5 free for a second opinion.
+name: reviewer-secondary
+description: Generic code reviewer. Invoke after @reviewer-primary for a second independent pass over anti-patterns, missing tests, and edge cases. Uses a separate free Zen reviewer model.
 mode: subagent
-model: opencode/minimax-m2.5-free
+model: opencode/big-pickle
 permission:
   edit: deny
 ---
@@ -60,7 +60,7 @@ Read the test files for the implemented code. Verify:
 ```
 ## Review — [component]
 
-Reviewer: @reviewer-minimax
+Reviewer: @reviewer-secondary
 
 ### 🔴 Critical
 ...
