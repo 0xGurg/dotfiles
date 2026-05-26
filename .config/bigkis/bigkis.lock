@@ -1,8 +1,11 @@
 schema_version = 1
-generated_at   = "2026-05-25T06:57:20Z"
+generated_at   = "2026-05-26T09:40:12Z"
 
 [pacman.atuin]
 version = "18.16.1-1"
+
+[pacman.avahi]
+version = "1:0.9rc4-1"
 
 [pacman.base]
 version = "3-3"
@@ -49,6 +52,9 @@ version = "1:1.16.6-1"
 [pacman.fnm]
 version = "1.39.0-1"
 
+[pacman.gamemode]
+version = "1.8.2-2"
+
 [pacman.ghostty]
 version = "1.3.1-2"
 
@@ -82,14 +88,26 @@ version = "1.8.1-3"
 [pacman.lazygit]
 version = "0.61.1-1"
 
+[pacman.lib32-gamemode]
+version = "1.8.2-1"
+
+[pacman.lib32-mangohud]
+version = "0.8.3-1"
+
 [pacman.linux]
 version = "7.0.10.arch1-1"
 
 [pacman.linux-firmware]
 version = "20260519-1"
 
+[pacman.lutris]
+version = "0.5.22-1"
+
+[pacman.mangohud]
+version = "0.8.3-2"
+
 [pacman.nautilus]
-version = "50.2-1"
+version = "50.2.2-1"
 
 [pacman.neovim]
 version = "0.12.2-1"
@@ -151,6 +169,9 @@ version = "0.18-1"
 [pacman.shfmt]
 version = "3.13.1-1"
 
+[pacman.smartmontools]
+version = "7.5-1"
+
 [pacman.snapper]
 version = "0.13.1-2"
 
@@ -177,6 +198,12 @@ version = "0.36.2-7"
 
 [pacman.vulkan-intel]
 version = "1:26.1.1-2"
+
+[pacman.wine-staging]
+version = "11.9-1"
+
+[pacman.winetricks]
+version = "20260125-2"
 
 [pacman.wireguard-tools]
 version = "1.0.20260223-1"
@@ -207,6 +234,9 @@ version = "0.7.1-1"
 
 [aur.brave-bin]
 version = "1:1.90.124-1"
+
+[aur.plex-media-server]
+version = "1.43.2.10687-1"
 
 [aur.quickshell-git]
 version = "0.3.0.r4.g4b4fca3-1"
