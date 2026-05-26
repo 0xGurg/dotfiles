@@ -30,6 +30,7 @@ packages = [
   "intel-ucode",
   "zram-generator",
   "openssh",
+  "samba",
 
   # Bluetooth
   "bluez",
@@ -50,6 +51,8 @@ packages = [
   # Wayland / Desktop
   "hyprland",
   "xdg-desktop-portal-hyprland",
+  "qt6-wayland",
+  "qt6-svg",
 
   # Shell & CLI Tools
   "git",
@@ -96,7 +99,23 @@ packages = [
   "bitwarden",
   "bitwarden-cli",
   "flatpak",
+  "nautilus",
   "steam",
+
+  # Gaming
+  "gamemode",
+  "lib32-gamemode",
+  "mangohud",
+  "lib32-mangohud",
+  "wine-staging",
+  "winetricks",
+  "lutris",
+
+  # Monitoring
+  "smartmontools",
+
+  # Networking
+  "avahi",
 ]
 ignored = []
 
@@ -107,7 +126,9 @@ ignored = []
 packages = [
   "bigkis-bin",
   "brave-bin",
+  "quickshell-git",
   "zapzap",
+  "plex-media-server",
   # "howdy-git",  # TODO: blocked — python-dlib→CUDA build fails with GCC 16 / CUDA 13
 ]
 ignored = []

@@ -5,20 +5,19 @@ import Quickshell.Io
 import "../colors.qml" as C
 
 PanelWindow {
-    id: sidePanel
+  id: sidePanel
+  required property var screen
 
-    anchors {
-        right: true
-        top: true
-        bottom: true
-    }
+  anchors {
+    right: true
+    top: true
+    bottom: true
+  }
 
-    width: 340
-    color: C.bg
-
-    Component.onCompleted: {
-        namespace = "quickshell:sidebar"
-    }
+  implicitWidth: 340
+  screen: sidePanel.screen
+  color: C.bg
+  namespace: "quickshell:sidebar"
 
     // Border at left edge
     Rectangle {
@@ -164,7 +163,6 @@ PanelWindow {
     Process {
         id: cpuProc
         command: ["grep", "cpu ", "/proc/stat"]
-        running: false
 
         stdout: SplitParser {
             onRead: data => {
@@ -187,7 +185,6 @@ PanelWindow {
     Process {
         id: memProc
         command: ["grep", "-E", "^(MemTotal|MemAvailable):", "/proc/meminfo"]
-        running: false
 
         stdout: SplitParser {
             onRead: data => {
@@ -212,13 +209,9 @@ PanelWindow {
         running: true
         repeat: true
         onTriggered: {
-            cpuProc.running = true
-            memProc.running = true
+            // Restart processes if they stopped
+            if (!cpuProc.running) cpuProc.running = true
+            if (!memProc.running) memProc.running = true
         }
-    }
-
-    Component.onCompleted: {
-        cpuProc.running = true
-        memProc.running = true
     }
 }

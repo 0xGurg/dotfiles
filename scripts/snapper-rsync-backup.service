@@ -1,6 +1,7 @@
 [Unit]
-Description=Rsync latest snapper snapshot to /srv/data
-After=snapper-timeline.timer
+Description=Rsync latest snapper snapshots to /srv/data
+After=snapper-timeline.service
+RequiresMountsFor=/srv/data
 
 [Service]
 Type=oneshot

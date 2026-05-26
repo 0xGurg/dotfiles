@@ -15,6 +15,14 @@
 
 set -euo pipefail
 
+# Auto-source .env if present (check cwd first, then repo root relative to script)
+for env_file in "$PWD/.env" "$(cd "$(dirname "$0")/../../.." && pwd)/.env" "$HOME/.config/opencode/.env"; do
+  if [[ -f "$env_file" ]]; then
+    set -a; source "$env_file"; set +a
+    break
+  fi
+done
+
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 CONFIG_FILE="$CONFIG_DIR/opencode-quota/opencode-go.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -35,17 +43,28 @@ err()  { echo -e "${RED}[quota]${NC} $*" >&2; }
 # --- Parse args ---
 FORCE=false
 CHECK_ONLY=false
-for arg in "$@"; do
-  case "$arg" in
-    --force)  FORCE=true ;;
-    --check)  CHECK_ONLY=true ;;
+MANUAL_COOKIE=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force)         FORCE=true; shift ;;
+    --check)         CHECK_ONLY=true; shift ;;
+    --cookie)
+      MANUAL_COOKIE="$2"
+      shift 2
+      ;;
     -h|--help)
-      echo "Usage: $0 [--force] [--check]"
-      echo "  --force  Force refresh the auth cookie even if not expired"
-      echo "  --check  Only check if the cookie is valid, don't refresh"
+      echo "Usage: $0 [--force] [--check] [--cookie VALUE]"
+      echo "  --force        Force refresh the auth cookie even if not expired"
+      echo "  --check        Only check if the cookie is valid, don't refresh"
+      echo "  --cookie VALUE Use this cookie value instead of auto-extracting from browser"
+      echo ""
+      echo "To get your auth cookie:"
+      echo "  1. Open https://opencode.ai in your browser"
+      echo "  2. DevTools → Application → Cookies → opencode.ai"
+      echo "  3. Copy the value of the 'auth' cookie"
       exit 0
       ;;
-    *) err "Unknown argument: $arg"; exit 1 ;;
+    *) err "Unknown argument: $1"; exit 1 ;;
   esac
 done
 
@@ -213,13 +232,24 @@ export_env_from_config() {
 show_quota() {
   export_env_from_config
 
-  local npx_cmd="npx @slkiser/opencode-quota show --provider opencode-go"
-  if command -v opencode-quota &>/dev/null; then
-    npx_cmd="opencode-quota show --provider opencode-go"
+  local bin="npx"
+  if command -v pnpm &>/dev/null; then
+    bin="pnpm exec"
+  elif command -v npx &>/dev/null; then
+    bin="npx"
+  else
+    warn "Neither pnpm nor npx found — cannot run opencode-quota"
+    return 1
+  fi
+
+  # Ensure dependencies are installed
+  if ! ls "$CONFIG_DIR/node_modules/@slkiser/opencode-quota/package.json" &>/dev/null; then
+    log "Installing opencode-quota dependency..."
+    cd "$CONFIG_DIR" && pnpm install 2>&1 | tail -1 || true
   fi
 
   log "Current quota:"
-  cd "$CONFIG_DIR" && $npx_cmd 2>/dev/null || warn "Could not fetch quota"
+  cd "$CONFIG_DIR" && $bin opencode-quota show --provider opencode-go 2>&1 || warn "Could not fetch quota"
 }
 
 # --- Main ---
@@ -266,19 +296,25 @@ main() {
   fi
 
   # --- Refresh cookie ---
-  log "Extracting fresh auth cookie from browser..."
   local new_cookie
-  new_cookie=$(extract_cookie)
-  if [[ $? -ne 0 ]]; then
-    err "Automatic cookie extraction failed"
-    err ""
-    err "To manually refresh:"
-    err "  1. Open https://opencode.ai in your browser"
-    err "  2. Open DevTools → Application → Cookies → opencode.ai"
-    err "  3. Copy the value of the 'auth' cookie"
-    err "  4. Edit $CONFIG_FILE"
-    err "     Set authCookie to the copied value"
-    exit 1
+  if [[ -n "$MANUAL_COOKIE" ]]; then
+    new_cookie="$MANUAL_COOKIE"
+    log "Using provided cookie (--cookie flag)"
+  else
+    log "Extracting fresh auth cookie from browser..."
+    new_cookie=$(extract_cookie)
+    if [[ $? -ne 0 ]]; then
+      err "Automatic cookie extraction failed"
+      err ""
+      err "To manually refresh:"
+      err "  Run: $0 --cookie \"<value>\""
+      err ""
+      err "To get your auth cookie value:"
+      err "  1. Open https://opencode.ai in your browser"
+      err "  2. DevTools → Application → Cookies → opencode.ai"
+      err "  3. Copy the value of the 'auth' cookie"
+      exit 1
+    fi
   fi
 
   # --- Try to get workspace ID if missing ---

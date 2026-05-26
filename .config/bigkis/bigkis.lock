@@ -1,5 +1,5 @@
 schema_version = 1
-generated_at   = "2026-05-21T06:45:02Z"
+generated_at   = "2026-05-25T06:57:20Z"
 
 [pacman.atuin]
 version = "18.16.1-1"
@@ -35,7 +35,7 @@ version = "7.0-1"
 version = "7.5-1"
 
 [pacman.cmake]
-version = "4.3.2-1"
+version = "4.3.3-1"
 
 [pacman.efibootmgr]
 version = "18-4"
@@ -83,10 +83,13 @@ version = "1.8.1-3"
 version = "0.61.1-1"
 
 [pacman.linux]
-version = "7.0.9.arch1-1"
+version = "7.0.10.arch1-1"
 
 [pacman.linux-firmware]
-version = "20260410-1"
+version = "20260519-1"
+
+[pacman.nautilus]
+version = "50.2-1"
 
 [pacman.neovim]
 version = "0.12.2-1"
@@ -98,7 +101,7 @@ version = "1:2026.05.01-1"
 version = "20240730-1"
 
 [pacman.nvidia-open]
-version = "595.71.05-10"
+version = "595.71.05-12"
 
 [pacman.nvidia-utils]
 version = "595.71.05-2"
@@ -107,31 +110,40 @@ version = "595.71.05-2"
 version = "0.24.0-1"
 
 [pacman.opencode]
-version = "1.15.4-1"
+version = "1.15.7-1"
 
 [pacman.openssh]
 version = "10.3p1-1"
 
 [pacman.pipewire]
-version = "1:1.6.5-1"
+version = "1:1.6.5-2"
 
 [pacman.pipewire-alsa]
-version = "1:1.6.5-1"
+version = "1:1.6.5-2"
 
 [pacman.pipewire-pulse]
-version = "1:1.6.5-1"
+version = "1:1.6.5-2"
 
 [pacman.pnpm]
 version = "10.33.4-1"
 
+[pacman.qt6-svg]
+version = "6.11.1-1"
+
+[pacman.qt6-wayland]
+version = "6.11.1-1"
+
 [pacman.rclone]
-version = "1.74.1-1"
+version = "1.74.2-1"
 
 [pacman.ripgrep]
-version = "15.1.0-2"
+version = "15.1.0-3"
 
 [pacman.rsync]
 version = "3.4.3-1"
+
+[pacman.samba]
+version = "2:4.24.2-1"
 
 [pacman.sbctl]
 version = "0.18-1"
@@ -146,7 +158,7 @@ version = "0.13.1-2"
 version = "1.25.1-1"
 
 [pacman.steam]
-version = "1.0.0.85-6"
+version = "1.0.0.85-7"
 
 [pacman.stow]
 version = "2.4.1-1"
@@ -164,7 +176,7 @@ version = "3.4.0-2"
 version = "0.36.2-7"
 
 [pacman.vulkan-intel]
-version = "1:26.0.6-1"
+version = "1:26.1.1-2"
 
 [pacman.wireguard-tools]
 version = "1.0.20260223-1"
@@ -191,15 +203,18 @@ version = "0.7.1-1"
 version = "0.8.0-2"
 
 [aur.bigkis-bin]
-version = "0.6.2-1"
+version = "0.7.1-1"
 
 [aur.brave-bin]
 version = "1:1.90.124-1"
+
+[aur.quickshell-git]
+version = "0.3.0.r4.g4b4fca3-1"
 
 [aur.zapzap]
 version = "6.4.2-1"
 
 [flatpak."com.spotify.Client"]
-version = "1.2.84.475.ga1a748ff"
-commit  = "b69b319989fd80dfd81d6dc97efa585d4e11102fb7068f6c2a86b98ef91b536c"
+version = "1.2.89.539.gfb3c63a3"
+commit  = "b7f12a3de3e717f215785138684293550456737212c74b38c7ba16ade2aa6043"
 
