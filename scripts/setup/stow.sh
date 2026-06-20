@@ -29,7 +29,8 @@ setup_stow() {
 setup_symlinks() {
   print_status "Creating symlinks with stow..."
 
-  local BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+  local BACKUP_DIR
+  BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
   has_symlink_ancestor() {
     local check="$1"
@@ -61,7 +62,7 @@ setup_symlinks() {
   }
 
   while IFS= read -r -d '' file; do
-    local rel="${file#$DOTFILES_DIR/}"
+    local rel="${file#"$DOTFILES_DIR"/}"
 
     [[ "$rel" == scripts/* ]] && continue
     [[ "$rel" == .git/* ]] && continue

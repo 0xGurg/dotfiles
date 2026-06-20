@@ -27,7 +27,8 @@ enable_touchid() {
     [[ -f /etc/pam.d/sudo_local ]] || sudo cp /etc/pam.d/sudo_local.template /etc/pam.d/sudo_local
     printf '%s\n' "$PAM_LINE" | sudo tee -a /etc/pam.d/sudo_local > /dev/null
   else
-    local backup="/etc/pam.d/sudo.dotfiles-backup.$(date +%Y%m%d-%H%M%S)"
+    local backup
+    backup="/etc/pam.d/sudo.dotfiles-backup.$(date +%Y%m%d-%H%M%S)"
     print_status "Enabling Touch ID in /etc/pam.d/sudo..."
     sudo cp /etc/pam.d/sudo "$backup"
     awk -v line="$PAM_LINE" 'BEGIN { print line } { print }' /etc/pam.d/sudo | sudo tee /etc/pam.d/sudo > /dev/null
