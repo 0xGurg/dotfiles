@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Post-install — enable services and print next steps
 
 post_install() {
@@ -7,6 +8,14 @@ post_install() {
 
     if command -v ufw &> /dev/null; then
       sudo systemctl enable --now ufw 2>/dev/null && print_success "UFW enabled" || true
+    fi
+
+    if [[ -f "$DOTFILES_DIR/scripts/snapper-rsync-backup.timer" ]]; then
+      sudo cp "$DOTFILES_DIR/scripts/snapper-rsync-backup.service" /etc/systemd/system/
+      sudo cp "$DOTFILES_DIR/scripts/snapper-rsync-backup.timer" /etc/systemd/system/
+      sudo systemctl daemon-reload
+      sudo systemctl enable --now snapper-rsync-backup.timer
+      print_success "snapper-rsync-backup.timer enabled"
     fi
 
     echo ""

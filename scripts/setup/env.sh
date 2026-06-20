@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Environment variables setup (.env from .env.tmpl)
 
 setup_env() {
@@ -17,6 +18,6 @@ setup_env() {
   cp "$DOTFILES_DIR/.env.tmpl" "$DOTFILES_DIR/.env"
   chmod 600 "$DOTFILES_DIR/.env"
   print_success "Created .env from .env.tmpl"
-  print_warning "Edit ~/dotfiles/.env and fill in your secrets before using OpenCode"
-  print_warning "Or run: python3 ~/dotfiles/scripts/inject-secrets.py (if using Bitwarden)"
+  print_warning "Edit $DOTFILES_DIR/.env and fill in your secrets before using OpenCode"
+  print_warning "Or run: python3 $DOTFILES_DIR/scripts/inject-secrets.py (if using Bitwarden)"
 }

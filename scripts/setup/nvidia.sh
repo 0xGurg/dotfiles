@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Early KMS — NVIDIA (Arch only)
 
 setup_early_kms() {
@@ -10,17 +11,15 @@ setup_early_kms() {
 
   local MKINIT="/etc/mkinitcpio.conf"
 
-  if grep -qP '^MODULES=\(.*nvidia.*\)' "$MKINIT"; then
+  if [[ -d /etc/mkinitcpio.conf.d ]] && [[ -f /etc/mkinitcpio.conf.d/nvidia.conf ]]; then
+    print_success "NVIDIA modules drop-in already present"
+  elif grep -qP '^MODULES=\(.*nvidia.*\)' "$MKINIT"; then
     print_success "NVIDIA modules already present in $MKINIT"
   else
-    print_status "Adding NVIDIA modules to MODULES= in $MKINIT..."
-    sudo sed -i \
-      's/^MODULES=(\(.*\))/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' \
-      "$MKINIT"
-    sudo sed -i \
-      's/^MODULES=( /MODULES=(/' \
-      "$MKINIT"
-    print_success "NVIDIA modules added to $MKINIT"
+    print_status "Adding NVIDIA modules via mkinitcpio drop-in..."
+    sudo mkdir -p /etc/mkinitcpio.conf.d
+    echo 'MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)' | sudo tee /etc/mkinitcpio.conf.d/nvidia.conf > /dev/null
+    print_success "NVIDIA modules drop-in created at /etc/mkinitcpio.conf.d/nvidia.conf"
 
     print_status "Regenerating initramfs (mkinitcpio -P)..."
     sudo mkinitcpio -P

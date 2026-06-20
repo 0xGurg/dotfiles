@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Secrets injection (Bitwarden → .env, config templates, SSH keys)
 
 setup_secrets() {

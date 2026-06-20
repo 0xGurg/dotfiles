@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Authentication setup (Touch ID on macOS, Howdy on Arch)
 
 setup_auth() {

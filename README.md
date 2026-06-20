@@ -277,7 +277,7 @@ This extracts the `auth` cookie from your browser and saves it to
 - **Stow-based**: Uses GNU Stow for symlink management
 - **Git-tracked**: All configs versioned for easy restoration
 - **Shared account**: OpenCode Go is shared — use `/quota` in OpenCode to check usage
-- **macOS-only configs** (`aerospace`, `sketchybar`, `raycast`, `Brewfile`) are automatically ignored by stow on Arch Linux
+- **Cross-OS configs** are harmless since applications only read their own configuration files
 
 ## 📖 Detailed Documentation
 

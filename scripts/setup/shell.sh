@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Shell setup (Arch only — macOS defaults to zsh since Catalina)
 
 setup_shell() {

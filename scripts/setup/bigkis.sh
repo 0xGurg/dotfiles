@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Bigkis — declarative package manager (Arch only)
 
 setup_bigkis() {

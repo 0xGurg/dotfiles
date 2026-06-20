@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # PNPM (Arch only — pre-create PNPM_HOME so global installs work without
 # the interactive `pnpm setup` step)
 

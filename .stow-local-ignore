@@ -29,5 +29,18 @@
 # Scripts directory (keep in repo, don't stow to $HOME)
 ^/scripts
 
+# macOS-only configs (not stowed on Linux)
+Brewfile
+^\.config/aerospace/
+^\.config/sketchybar/
+^\.config/raycast/
+
+# OpenCode generated files
+pnpm-lock\.yaml
+pnpm-workspace\.yaml
+
+# Backup files
+\.bak$
+
 # macOS system files
 \.DS_Store

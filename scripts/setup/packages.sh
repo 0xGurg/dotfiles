@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Package installation (Homebrew on macOS, bigkis on Arch)
 
 install_packages() {

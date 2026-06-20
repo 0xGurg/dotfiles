@@ -1,5 +1,11 @@
 .env
 
+# Backup files
+*.bak
+
+# Raycast binary exports
+.config/raycast/*.rayconfig
+
 # Local/sensitive app data (Linux)
 .config/BraveSoftware/
 .config/dconf/
@@ -54,4 +60,3 @@ sayang/
 # Node (all nested)
 **/node_modules/
 **/package-lock.json
-**/pnpm-lock.yaml

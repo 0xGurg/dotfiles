@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # OpenCode plugin installation
 
 setup_opencode() {

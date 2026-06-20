@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # GNU Stow — install and create symlinks
 
 setup_stow() {
@@ -15,6 +16,10 @@ setup_stow() {
       ;;
     arch|linux)
       sudo pacman -S --needed stow
+      ;;
+    *)
+      echo "Unknown OS — stow must be installed manually"
+      return 1
       ;;
   esac
 
@@ -65,7 +70,7 @@ setup_symlinks() {
 
     local target="$HOME/$rel"
     backup_existing "$target" "$rel"
-  done < <(find "$DOTFILES_DIR" \( -type f -o -type l \) ! -path '*/.git/*' -print0)
+  done < <(find "$DOTFILES_DIR" -path '*/.git' -prune -o \( -type f -o -type l \) -print0)
 
   cd "$DOTFILES_DIR"
 
@@ -74,7 +79,7 @@ setup_symlinks() {
       stow -v .
       ;;
     arch|linux)
-      stow --ignore='Brewfile' --ignore='aerospace' --ignore='sketchybar' --ignore='raycast' -v .
+      stow -v .
       ;;
   esac
 

@@ -3,7 +3,8 @@
 # Run after cloning dotfiles on a new machine, or when secrets change
 set -euo pipefail
 
-ENV_FILE="$HOME/dotfiles/.env"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$DOTFILES_DIR/.env"
 CONFIG_FILE="$HOME/.config/fgj/config.yaml"
 
 [[ -f "$ENV_FILE" ]] && source "$ENV_FILE"

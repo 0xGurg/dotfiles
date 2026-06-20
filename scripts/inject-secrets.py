@@ -251,9 +251,13 @@ def inject_ssh(session, config, hostname):
     # Add keys to ssh-agent
     if written_keys:
         status("Adding keys to ssh-agent...")
-        subprocess.run(["ssh-add"] + [str(k) for k in written_keys],
-                       capture_output=True)
-        success("Keys added to ssh-agent")
+        result = subprocess.run(["ssh-add"] + [str(k) for k in written_keys],
+                                capture_output=True)
+        if result.returncode != 0:
+            warning(f"ssh-add failed: {result.stderr.decode().strip() if result.stderr else 'agent not running?'}")
+            warning("Start ssh-agent with: eval $(ssh-agent -s)")
+        else:
+            success("Keys added to ssh-agent")
 
 
 def main():
@@ -277,7 +281,10 @@ def main():
     status(f"Detected hostname: {hostname}")
 
     status("Syncing Bitwarden vault...")
-    bw_run("sync", "--session", session)
+    result = bw_run("sync", "--session", session)
+    if result.returncode != 0:
+        error(f"Bitwarden sync failed: {result.stderr.strip() if result.stderr else 'unknown error'}")
+        sys.exit(1)
     success("Vault synced")
 
     inject_secrets(session, config)

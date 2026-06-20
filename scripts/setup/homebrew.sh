@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Homebrew (macOS only)
 
 setup_homebrew() {

@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 source "$CONFIG_DIR/colors.sh" # Loads all defined colors
 
@@ -50,22 +50,22 @@ default=(
 sketchybar --default "${default[@]}"
 
 # -- Left Side Items --
-source $ITEM_DIR/spaces.sh
-source $ITEM_DIR/front_app.sh
+source "$ITEM_DIR/spaces.sh"
+source "$ITEM_DIR/front_app.sh"
 
 sketchybar --set front_app click_script="sketchybar --set system_monitor.network popup.drawing=off"
 
 # -- Right Side Items --
-source $ITEM_DIR/calendar.sh
-source $ITEM_DIR/keyboard.sh
+source "$ITEM_DIR/calendar.sh"
+source "$ITEM_DIR/keyboard.sh"
 
 # Status items (grouped in bracket)
-source $ITEM_DIR/battery.sh
-source $ITEM_DIR/network.sh
-source $ITEM_DIR/microphone.sh
-source $ITEM_DIR/volume.sh
+source "$ITEM_DIR/battery.sh"
+source "$ITEM_DIR/network.sh"
+source "$ITEM_DIR/microphone.sh"
+source "$ITEM_DIR/volume.sh"
 
 # Add bracket around status items
-source $ITEM_DIR/status_bracket.sh
+source "$ITEM_DIR/status_bracket.sh"
 
 sketchybar --update

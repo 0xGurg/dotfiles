@@ -5,6 +5,6 @@ RequiresMountsFor=/srv/data
 
 [Service]
 Type=oneshot
-ExecStart=/home/gurg/dotfiles/scripts/snapper-rsync-backup.sh
+ExecStart=%h/dotfiles/scripts/snapper-rsync-backup.sh
 Nice=19
 IOSchedulingClass=idle
