@@ -86,7 +86,7 @@ pkgup() {
       echo "$cleanup_list"
       if read -q "REPLY?Proceed with cleanup? (y/N) "; then
         echo ""
-        brew update && brew bundle install --verbose --cleanup --file="$HOME/dotfiles/Brewfile" && brew upgrade
+        brew update && brew bundle install --verbose --cleanup --force --file="$HOME/dotfiles/Brewfile" && brew upgrade
       else
         echo ""
         brew update && brew bundle install --verbose --file="$HOME/dotfiles/Brewfile" && brew upgrade
@@ -235,3 +235,7 @@ fi
 
 # Added by Antigravity
 export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+
+# >>> oh-my-opencode-slim background subagents >>>
+export OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
+# <<< oh-my-opencode-slim background subagents <<<
