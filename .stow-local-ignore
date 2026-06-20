@@ -21,10 +21,11 @@
 
 # Local secrets and generated app state
 ^/\.env$
-^/\.config/fgj/config\.yaml$
 ^/\.config/opencode/node_modules
 ^/\.config/opencode/package-lock\.json$
 ^/\.config/opencode/opencode-quota/opencode-go\.json$
+^/\.config/opencode/opencode-quota/accounts/
+^/\.config/opencode/opencode-quota/active-account$
 
 # Scripts directory (keep in repo, don't stow to $HOME)
 ^/scripts

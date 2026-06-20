@@ -239,7 +239,10 @@ python3 scripts/inject-secrets.py
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENCODE_GO_WORKSPACE_ID` | Shared OpenCode Go workspace ID for quota tracking |
+| `OPENCODE_GO_WORKSPACE_ID_PRIMARY` | Primary OpenCode Go workspace ID for quota tracking |
+| `OPENCODE_GO_WORKSPACE_ID_SECONDARY` | Secondary OpenCode Go workspace ID (optional second account) |
+| `OPENCODE_GO_API_KEY_PRIMARY` | Primary OpenCode Go API key (`/workspace/<id>/keys`) |
+| `OPENCODE_GO_API_KEY_SECONDARY` | Secondary OpenCode Go API key |
 | `BRAVE_API_KEY` | Brave Search API key (used by OpenCode Librarian agent) |
 | `SANITY_AUTH_TOKEN` | Sanity CMS authentication |
 
@@ -259,16 +262,35 @@ for usage tracking.
 OpenCode Go requires an auth cookie for quota tracking. To set it up or refresh it:
 
 ```bash
-~/.config/opencode/scripts/refresh-opencode-quota.sh
+ocgo
 ```
 
 This extracts the `auth` cookie from your browser and saves it to
 `opencode-quota/opencode-go.json`. Run it again when the cookie expires.
 
-| Flag | Purpose |
+**Two accounts:** workspace IDs and API keys live in `.env`. Switching with
+`ocgo-primary` / `ocgo-secondary` updates quota config **and** the OpenCode Go
+provider key in `~/.local/share/opencode/auth.json`. Dashboard cookies are saved
+per account under `opencode-quota/accounts/`.
+
+```bash
+ocgo-primary                  # refresh + switch to primary + show quota
+ocgo-secondary                # refresh + switch to secondary + show quota
+ocgo-status                   # check both accounts
+ocgo switch primary           # switch only (no browser refresh)
+```
+
+Log into the target account before running `ocgo-primary` (Brave) or
+`ocgo-secondary` (Chrome) if the cookie needs refreshing.
+
+| Flag / command | Purpose |
 |------|---------|
+| `primary`, `secondary`, `ocgo-primary`, `ocgo-secondary` | Refresh if needed, switch quota + provider API key, show quota |
 | `--check` | Check if current cookie is valid without refreshing |
 | `--force` | Force refresh even if the cookie is still valid |
+| `--account primary\|secondary` | Target a specific account for refresh/check |
+| `switch primary\|secondary` | Activate a saved cookie without browser refresh |
+| `status`, `ocgo-status` | Check status of both accounts |
 
 ## 📝 Notes
 

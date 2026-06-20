@@ -14,10 +14,15 @@
 
 # OpenCode quota data
 .config/opencode/opencode-quota/opencode-go.json
+.config/opencode/opencode-quota/accounts/
+.config/opencode/opencode-quota/active-account
 .config/opencode/node_modules/
 
 # Sanity CLI config (auto-generated telemetry/auth settings)
 .config/sanity/
+
+# GitHub CLI hosts file (may contain auth token if logged in via token)
+.config/gh/hosts.yml
 
 # Zsh history and cache (at $HOME level)
 .zsh_history
@@ -42,9 +47,6 @@ result-*
 
 # WireGuard config (contains private keys)
 wg0.conf
-
-# fgj (third-party git forge tool — may contain tokens)
-.config/fgj/
 
 # Neovim (auto-generated Lua config)
 .config/nvim/.luarc.json

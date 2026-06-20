@@ -51,7 +51,7 @@ setup_bigkis() {
   fi
 
   print_status "Installing bigkis..."
-  curl -fsSL https://codeberg.org/gurg/bigkis/raw/branch/main/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/0xGurg/bigkis/main/install.sh | sh
 
   print_success "bigkis installed"
 }

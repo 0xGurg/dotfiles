@@ -60,6 +60,10 @@ alias nvh="nvim ."
 # OpenCode
 alias oc="opencode"
 alias occ="opencode -c"
+alias ocgo="$HOME/dotfiles/.config/opencode/scripts/refresh-opencode-quota.sh"
+alias ocgo-primary='ocgo primary'
+alias ocgo-secondary='ocgo secondary'
+alias ocgo-status='ocgo status'
 
 # Secrets
 alias ssh-sync="python3 $HOME/dotfiles/scripts/inject-secrets.py"
