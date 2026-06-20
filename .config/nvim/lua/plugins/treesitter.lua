@@ -7,7 +7,8 @@ return {
 					"javascript", "typescript", "tsx",
 					"html", "css", "scss", "json",
 					"lua", "vim", "vimdoc", "query",
-					"markdown", "markdown_inline", "c"
+					"markdown", "markdown_inline", "c",
+						"http",
 				},
 				sync_install = false,
 				auto_install = true,
