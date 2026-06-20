@@ -3,8 +3,8 @@
   "model": "opencode-go/deepseek-v4-pro",
   "autoupdate": true,
   "plugin": [
-    "oh-my-opencode-slim@latest",
-    "@slkiser/opencode-quota"
+    "@slkiser/opencode-quota",
+    "oh-my-opencode-slim"
   ],
   "agent": {
     "build": {

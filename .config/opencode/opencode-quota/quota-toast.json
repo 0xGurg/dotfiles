@@ -1,5 +1,6 @@
 {
   "enabled": true,
+  "enableToast": false,
   "enabledProviders": "auto",
   "minIntervalMs": 300000,
   "requestTimeoutMs": 5000,
@@ -7,17 +8,11 @@
   "percentDisplayMode": "remaining",
   "onlyCurrentModel": false,
   "showSessionTokens": true,
-  "enableToast": true,
-  "toastDurationMs": 9000,
-  "showOnIdle": true,
-  "showOnQuestion": true,
-  "showOnCompact": true,
-  "showOnBothFail": true,
   "tuiSidebarPanel": {
     "enabled": true
   },
   "tuiCompactStatus": {
-    "enabled": false,
+    "enabled": true,
     "homeBottom": true,
     "sessionPrompt": true,
     "suppressWhenNativeProviderQuota": true,

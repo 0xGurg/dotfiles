@@ -1,12 +1,12 @@
 {
-	"$schema": "https://opencode.ai/tui.json",
-	"theme": "system",
-	"keybinds": {
-		"leader": "ctrl+o",
-		"app_exit": "ctrl+c,q"
-	},
-	"plugin": [
-		"@slkiser/opencode-quota",
-		"oh-my-opencode-slim@latest"
-	]
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "system",
+  "keybinds": {
+    "leader": "ctrl+o",
+    "app_exit": "ctrl+c,q"
+  },
+  "plugin": [
+    "@slkiser/opencode-quota",
+    "oh-my-opencode-slim"
+  ]
 }
