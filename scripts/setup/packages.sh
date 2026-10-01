@@ -7,7 +7,8 @@ install_packages() {
     macos)
       print_status "Installing packages via Homebrew..."
       brew update
-      brew bundle install --verbose --cleanup --file="$DOTFILES_DIR/Brewfile"
+      brew bundle install --verbose --file="$DOTFILES_DIR/Brewfile"
+      brew bundle cleanup --file="$DOTFILES_DIR/Brewfile"
       brew upgrade
       print_success "All packages installed"
       ;;
